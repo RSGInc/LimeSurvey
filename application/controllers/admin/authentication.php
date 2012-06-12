@@ -32,6 +32,9 @@ class Authentication extends Survey_Common_Action
     */
     public function index()
     {
+    	if (Yii::app()->request->getPost('forwardAction')){
+			Yii::app()->session['redirectopage'] = Yii::app()->request->getPost('forwardAction');
+		}
         $this->_redirectIfLoggedIn();
         $sIp = Yii::app()->request->getUserHostAddress();
         $bCanLogin = $this->_userCanLogin($sIp);
@@ -203,7 +206,7 @@ class Authentication extends Survey_Common_Action
     {
         if (!Yii::app()->user->getIsGuest())
         {
-            Yii::app()->request->redirect($this->getController()->createUrl('/admin'));
+        	$this->_doRedirect();
         }
     }
 

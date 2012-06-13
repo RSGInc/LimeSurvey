@@ -57,10 +57,13 @@ class Survey_permissions extends CActiveRecord
 	 * @static
 	 * @return array
 	 */
-	public static function getBasePermissions()
+	public static function getBasePermissions($lang)
 	{
-		$clang = Yii::app()->lang;
-
+		if(!empty($lang)){
+			$clang = $lang;
+		}else{
+			$clang = Yii::app()->lang;
+		}
 		$aPermissions=array(
 			'assessments'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>false,'export'=>false,'title'=>$clang->gT("Assessments"),'description'=>$clang->gT("Permission to create/view/update/delete assessments rules for a survey"),'img'=>'assessments'),  // Checked
 			'quotas'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>false,'export'=>false,'title'=>$clang->gT("Quotas"),'description'=>$clang->gT("Permission to create/view/update/delete quota rules for a survey"),'img'=>'quota'), // Checked
@@ -75,6 +78,10 @@ class Survey_permissions extends CActiveRecord
 			'tokens'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>true,'export'=>true,'title'=>$clang->gT("Tokens"),'description'=>$clang->gT("Permission to create/update/delete/import/export token entries"),'img'=>'tokens'),
 			'translations'=>array('create'=>false,'read'=>true,'update'=>true,'delete'=>false,'import'=>false,'export'=>false,'title'=>$clang->gT("Quick translation"),'description'=>$clang->gT("Permission to view & update the translations using the quick-translation feature"),'img'=>'translate')
 		);
+
+
+
+
 
 		uasort($aPermissions,"comparePermission");
 		return $aPermissions;
@@ -125,7 +132,28 @@ class Survey_permissions extends CActiveRecord
 
 	function giveAllSurveyPermissions($iUserID, $iSurveyID)
     {
-        $aPermissions=$this->getBasePermissions();
+    	
+		
+		$aPermissions=array(
+			'assessments'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>false,'export'=>false, 'title'=>'assessments'),  // Checked
+			'quotas'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>false,'export'=>false, 'title'=>'quotas'), // Checked
+			'responses'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>true,'export'=>true, 'title'=>'responses'),
+			'statistics'=>array('create'=>false,'read'=>true,'update'=>false,'delete'=>false,'import'=>false,'export'=>false, 'title'=>'statistics'),    //Checked
+			'survey'=>array('create'=>false,'read'=>true,'update'=>false,'delete'=>true,'import'=>false,'export'=>false, 'title'=>'survey'),   //Checked
+			'surveyactivation'=>array('create'=>false,'read'=>false,'update'=>true,'delete'=>false,'import'=>false,'export'=>false, 'title'=>''),  //Checked
+			'surveycontent'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>true,'export'=>true, 'title'=>'surveycontent'),
+			'surveylocale'=>array('create'=>false,'read'=>true,'update'=>true,'delete'=>false,'import'=>false,'export'=>false, 'title'=>'surveylocale'),
+			'surveysecurity'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>false,'export'=>false, 'title'=>'surveysecurity'),
+			'surveysettings'=>array('create'=>false,'read'=>true,'update'=>true,'delete'=>false,'import'=>false,'export'=>false, 'title'=>'surveysettings'),
+			'tokens'=>array('create'=>true,'read'=>true,'update'=>true,'delete'=>true,'import'=>true,'export'=>true, 'title'=>'tokens'),
+			'translations'=>array('create'=>false,'read'=>true,'update'=>true,'delete'=>false,'import'=>false,'export'=>false, 'title'=>'translations')
+		);
+
+		uasort($aPermissions,"comparePermission");
+		
+		
+		
+        //$aPermissions=$this->getBasePermissions('');
 
         $aPermissionsToSet=array();
         foreach ($aPermissions as $sPermissionName=>$aPermissionDetails)

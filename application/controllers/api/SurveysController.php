@@ -75,4 +75,43 @@ class SurveysController extends BaseAPIController
 		echo CJSON::encode(array('surveyid'=>$iNewSurveyid));
 		Yii::app()->end();
     }
+	
+	public function actionActivate()
+	{
+		$iSurveyID = (int)$_POST['sid'];
+		Yii::app()->setLang(new Limesurvey_lang('en'));
+		$clang = Yii::app()->lang;
+    	//$group['Arrays'] = $clang->gT('Arrays');
+		
+		if (!$iSurveyID)
+        {
+            echo CJSON::encode(array('success'=>'false'));
+			Yii::app()->end();
+        }
+		
+        $surveyInfo = getSurveyInfo($iSurveyID);
+		
+        if (!isset($surveyInfo['active']) || $surveyInfo['active'] == 'Y'){
+            //$this->getController()->error('Survey not active');
+            echo CJSON::encode(array('success'=>'false'));
+			Yii::app()->end();
+		}
+		
+        Yii::app()->loadHelper("admin/activate");
+		
+        $survey = Survey::model()->findByAttributes(array('sid' => $iSurveyID));
+        
+        if (!is_null($survey))
+        {
+            $survey->anonymized = false;
+            $survey->datestamp = true;
+            $survey->ipaddr = true;
+            $survey->refurl = true;
+            $survey->savetimings = true;
+            $survey->save();
+        }
+        activateSurvey($iSurveyID);		
+		echo CJSON::encode(array('success'=>'true'));
+		Yii::app()->end();
+	}
 }

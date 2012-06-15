@@ -268,7 +268,6 @@ function activateSurvey($surveyid, $simulate = false)
 {
 
     $clang = Yii::app()->lang;
-
     $createsurvey='';
     $activateoutput='';
     $createsurveytimings='';
@@ -285,10 +284,9 @@ function activateSurvey($surveyid, $simulate = false)
     {
         $savetimings="TRUE";
     }
-
     //Get list of questions for the base language
+	//Yii::app()->loadHelper("common");
     $fieldmap = createFieldMap($surveyid,'full',true,false,getBaseLanguageFromSurveyID($surveyid));
-
     $createsurvey = array();
     foreach ($fieldmap as $j=>$arow) //With each question, create the appropriate field(s)
     {

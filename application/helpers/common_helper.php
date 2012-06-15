@@ -48,7 +48,6 @@ function getQuestionTypeList($SelectedCode = "T", $ReturnType = "selector")
 {
     $publicurl = Yii::app()->getConfig('publicurl');
     $clang = Yii::app()->lang;
-
     $group['Arrays'] = $clang->gT('Arrays');
     $group['MaskQuestions'] = $clang->gT("Mask questions");
     $group['SinChoiceQues'] = $clang->gT("Single choice questions");
@@ -2172,7 +2171,6 @@ function validateTemplateDir($templatename)
 */
 function createFieldMap($surveyid, $style='short', $force_refresh=false, $questionid=false, $sLanguage) {
     global $aDuplicateQIDs;
-
     $sLanguage = sanitize_languagecode($sLanguage);
     $surveyid = sanitize_int($surveyid);
     $clang = new Limesurvey_lang($sLanguage); ;
@@ -2213,7 +2211,7 @@ function createFieldMap($surveyid, $style='short', $force_refresh=false, $questi
         $fieldmap["startlanguage"]['question']=$clang->gT("Start language");
         $fieldmap["startlanguage"]['group_name']="";
     }
-
+	
     // Select which question IDs have default values
     $_aDefaultValues = Defaultvalues::model()->with(array('question' => array('condition' => 'question.sid=' . $surveyid)))->findAll();
     $aDefaultValues = array();
@@ -2334,7 +2332,6 @@ function createFieldMap($surveyid, $style='short', $force_refresh=false, $questi
         $defaultValues[$dv['qid'].'~'.$sq] = $dv['defaultvalue'];
     }
     $qtypes=getQuestionTypeList('','array');
-
     $aquery = "SELECT * "
     ." FROM {{questions}} as questions, {{groups}} as groups"
     ." WHERE questions.gid=groups.gid AND "

@@ -36,8 +36,7 @@ class Authentication extends Survey_Common_Action
 			Yii::app()->session['redirectopage'] = Yii::app()->request->getPost('forwardAction');
 		}
         $this->_redirectIfLoggedIn();
-        $sIp = Yii::app()->request->getUserHostAddress();
-        $bCanLogin = $this->_userCanLogin($sIp);
+        $bCanLogin = $this->_userCanLogin();
 
         if ($bCanLogin && !is_array($bCanLogin))
         {
@@ -47,7 +46,7 @@ class Authentication extends Survey_Common_Action
 
                 if (!isset($aData['errormsg']))
                 {
-                    Failed_login_attempts::model()->deleteAttempts($sIp);
+                    Failed_login_attempts::model()->deleteAttempts();
 
                     $this->getController()->_GetSessionUserRights(Yii::app()->session['loginID']);
                     Yii::app()->session['just_logged_in'] = true;
@@ -212,20 +211,14 @@ class Authentication extends Survey_Common_Action
 
     /**
     * Check if a user can log in
-    * @param string $sIp IP Address
     * @return bool|array
     */
-    private function _userCanLogin($sIp = '')
+    private function _userCanLogin()
     {
-        if (empty($sIp))
-        {
-            $sIp = Yii::app()->request->getUserHostAddress();
-        }
-
         $failed_login_attempts = Failed_login_attempts::model();
         $failed_login_attempts->cleanOutOldAttempts();
 
-        if ($failed_login_attempts->isLockedOut($sIp))
+        if ($failed_login_attempts->isLockedOut())
         {
             return $this->_getAuthenticationFailedErrorMessage();
         }

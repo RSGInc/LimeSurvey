@@ -72,7 +72,7 @@ class SurveysController extends BaseAPIController
         );
         $langsettings = new Surveys_languagesettings;
         $langsettings->insertNewSurvey($aInsertData, $xssfilter);
-		echo CJSON::encode(array('surveyid'=>$iNewSurveyid));
+		echo CJSON::encode(array('sid'=>$iNewSurveyid));
 		Yii::app()->end();
     }
 	

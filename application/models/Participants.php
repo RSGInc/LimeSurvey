@@ -185,7 +185,7 @@ class Participants extends CActiveRecord
      * of the two tables
      */
 
-    function getParticipantsSharedCount($userid)
+    static function getParticipantsSharedCount($userid)
     {
         return count(Yii::app()->db->createCommand()->select('{{participants}}.*, {{participant_shares}}.*')->from('{{participants}}')->join('{{participant_shares}}', '{{participant_shares}}.participant_id = {{participants}}.participant_id')->where('owner_uid = :userid')->bindParam(":userid", $userid, PDO::PARAM_INT)->queryAll());
     }

@@ -58,7 +58,8 @@ class SurveysController extends BaseAPIController
         'owner_id' => 1, //Yii::app()-> session['loginID'],
         'active' => 'N',
         'allow_dynamic_tokens' => 'Y',
-        'usetokens' => 'Y'
+        'usetokens' => 'Y',
+        'language' => 'en'
         );
 		$xssfilter = false;
         $iNewSurveyid = Survey::model()->insertNewSurvey($aInsertData, $xssfilter);

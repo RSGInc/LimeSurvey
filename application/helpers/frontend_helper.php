@@ -1530,22 +1530,32 @@
         {
             //TOKEN DOESN'T EXIST OR HAS ALREADY BEEN USED. EXPLAIN PROBLEM AND EXIT
 
-            killSurveySession($surveyid);
-            sendCacheHeaders();
-            doHeader();
+            // check if token can be added to survey dynamically
+            if($thissurvey['allow_dynamic_tokens'] == 'Y') 
+            {
+                $token = new Tokens_dynamic;
+                $token->token = trim(strip_tags($clienttoken));
+                $token->save();
+            }
+            else
+            {
+                killSurveySession($surveyid);
+                sendCacheHeaders();
+                doHeader();
 
-            $redata = compact(array_keys(get_defined_vars()));
-            echo templatereplace(file_get_contents("$thistpl/startpage.pstpl"),array(),$redata,'frontend_helper[1676]');
-            echo templatereplace(file_get_contents("$thistpl/survey.pstpl"),array(),$redata,'frontend_helper[1677]');
-            echo '<div id="wrapper"><p id="tokenmessage">'.$clang->gT("This is a controlled survey. You need a valid token to participate.")."<br /><br />\n"
-            ."\t".$clang->gT("The token you have provided is either not valid, or has already been used.")."<br /><br />\n"
-            ."\t".sprintf($clang->gT("For further information please contact %s"), $thissurvey['adminname'])
-            ." (<a href='mailto:{$thissurvey['adminemail']}'>"
-            ."{$thissurvey['adminemail']}</a>)</p></div>\n";
+                $redata = compact(array_keys(get_defined_vars()));
+                echo templatereplace(file_get_contents("$thistpl/startpage.pstpl"),array(),$redata,'frontend_helper[1676]');
+                echo templatereplace(file_get_contents("$thistpl/survey.pstpl"),array(),$redata,'frontend_helper[1677]');
+                echo '<div id="wrapper"><p id="tokenmessage">'.$clang->gT("This is a controlled survey. You need a valid token to participate.")."<br /><br />\n"
+                ."\t".$clang->gT("The token you have provided is either not valid, or has already been used.")."<br /><br />\n"
+                ."\t".sprintf($clang->gT("For further information please contact %s"), $thissurvey['adminname'])
+                ." (<a href='mailto:{$thissurvey['adminemail']}'>"
+                ."{$thissurvey['adminemail']}</a>)</p></div>\n";
 
-            echo templatereplace(file_get_contents("$thistpl/endpage.pstpl"),array(),$redata,'frontend_helper[1684]');
-            doFooter();
-            exit;
+                echo templatereplace(file_get_contents("$thistpl/endpage.pstpl"),array(),$redata,'frontend_helper[1684]');
+                doFooter();
+                exit;
+            }
         }
     }
     // TOKENS REQUIRED, A TOKEN PROVIDED

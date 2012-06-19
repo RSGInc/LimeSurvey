@@ -50,13 +50,15 @@ class SurveysController extends BaseAPIController
     
 	public function actionCreate()
     {
-    	$sTitle = $_POST['title'];
-        $sTemplate = "default";
         Yii::app()->loadHelper("surveytranslator");
+
+    	$sTitle = $_POST['title'];
         $aInsertData = array(
-        'template' => $sTemplate,
+        'template' => "default",
         'owner_id' => 1, //Yii::app()-> session['loginID'],
-        'active' => 'N'
+        'active' => 'N',
+        'allow_dynamic_tokens' => 'Y',
+        'usetokens' => 'Y'
         );
 		$xssfilter = false;
         $iNewSurveyid = Survey::model()->insertNewSurvey($aInsertData, $xssfilter);
@@ -66,9 +68,10 @@ class SurveysController extends BaseAPIController
         }
         
         $sTitle = html_entity_decode($sTitle, ENT_QUOTES, "UTF-8");
-        $aInsertData = array('surveyls_survey_id' => $iNewSurveyid,
-        'surveyls_title' => $sTitle,
-        'surveyls_language' => 'en'
+        $aInsertData = array(
+            'surveyls_survey_id' => $iNewSurveyid,
+            'surveyls_title' => $sTitle,
+            'surveyls_language' => 'en'
         );
         $langsettings = new Surveys_languagesettings;
         $langsettings->insertNewSurvey($aInsertData, $xssfilter);

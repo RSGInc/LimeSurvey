@@ -55,6 +55,7 @@ class SurveysController extends BaseAPIController
         $sTemplate = "default";
         Yii::app()->loadHelper("surveytranslator");
         $aInsertData = array(
+        'language' => 'en',
         'template' => $sTemplate,
         'owner_id' => 1, //Yii::app()-> session['loginID'],
         'active' => 'N'
@@ -81,13 +82,13 @@ class SurveysController extends BaseAPIController
 		$iSurveyID = (int)$_POST['sid'];
 		Yii::app()->setLang(new Limesurvey_lang('en'));
 		$clang = Yii::app()->lang;
-		
 		Yii::app()->loadHelper("admin/exportresults");
+		$excesscols = createFieldMap($iSurveyID,'full',false,false,getBaseLanguageFromSurveyID($iSurveyID));
+        $excesscols = array_keys($excesscols);
+		$options->selectedColumns = $excesscols;
 		$surveybaselang = Survey::model()->findByPk($iSurveyID)->language;
         $exportoutput = "";
-        $thissurvey = getSurveyInfo($iSurveyID);
 		$explang = $surveybaselang;
-        $elang = new limesurvey_lang($explang);
 		$options = new FormattingOptions();
 		$excesscols = createFieldMap($iSurveyID,'full',false,false,getBaseLanguageFromSurveyID($iSurveyID));
         $excesscols = array_keys($excesscols);
@@ -95,7 +96,7 @@ class SurveysController extends BaseAPIController
 		$options->headingFormat = "full";
 		$options->responseCompletionState = "show";
 		$options->answerFormat = "long";
-		$options->format = 'csv';
+		$options->format = 'json';
 		$resultsService = new ExportSurveyResultsService();
         $resultsService->exportSurvey($iSurveyID, $explang, $options);
 	}

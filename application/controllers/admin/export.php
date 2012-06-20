@@ -244,11 +244,6 @@ class export extends Survey_Common_Action {
         //function.
         $options = new FormattingOptions();
         $options->selectedColumns = Yii::app()->request->getPost('colselect');
-		//echo 'test';
-		//echo colselect[];
-		$test = Yii::app()->request->getPost('colselect');
-		echo $test[1];
-		//echo getPost('colselect');
         $options->responseMinRecord = sanitize_int(Yii::app()->request->getPost('export_from')) - 1;
         $options->responseMaxRecord = sanitize_int(Yii::app()->request->getPost('export_to')) - 1;
         $options->answerFormat = $answers;
@@ -317,9 +312,9 @@ class export extends Survey_Common_Action {
         {
             $options->responseCompletionState = 'incomplete';
         }
-		print $options.ToString();
+
         $resultsService = new ExportSurveyResultsService();
-        //$resultsService->exportSurvey($iSurveyID, $explang, $options);
+        $resultsService->exportSurvey($iSurveyID, $explang, $options);
 
         exit;
     }

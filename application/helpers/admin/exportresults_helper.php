@@ -88,6 +88,10 @@ class ExportSurveyResultsService
                 header("Content-type: text/comma-separated-values; charset=UTF-8");
                 $writer = new CsvWriter();
                 break;
+			case "json":
+                header('Content-type: application/json');
+                $writer = new JsonWriter();
+                break;
             case "pdf":
                 $writer = new PdfWriter();
                 break;
@@ -108,7 +112,7 @@ class ExportSurveyResultsService
 
         $output = $writer->close();
 
-        if ($options->format == 'csv' || $options->format == 'doc')
+        if ($options->format == 'csv' || $options->format == 'doc' || $options->format == 'json')
         {
             echo $output;
         }
@@ -1333,6 +1337,28 @@ abstract class Writer implements IWriter
     * @param FormattingOptions $options
     */
     abstract protected function outputRecord($headers, $values, FormattingOptions $options);
+}
+
+class JsonWriter extends Writer
+{
+    private $output;
+    private $separator;
+    private $hasOutputHeader;
+	private $returnheaders;
+    function __construct()
+    {
+    }
+
+    protected function outputRecord($headers, $values, FormattingOptions $options)
+    {	
+      	$this->returnheaders = $headers;
+		$this->output[] = $values;
+    }
+
+    public function close()
+    {
+    	return CJSON::encode(array('cols'=>$this->returnheaders, 'data'=>$this->output));
+    }
 }
 
 class CsvWriter extends Writer

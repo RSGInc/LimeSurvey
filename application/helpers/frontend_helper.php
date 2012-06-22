@@ -1528,15 +1528,17 @@
         $tkexist = reset($tkresult->read());
         if (!$tkexist || $areTokensUsed)
         {
-            //TOKEN DOESN'T EXIST OR HAS ALREADY BEEN USED. EXPLAIN PROBLEM AND EXIT
+            //TOKEN DOESN'T EXIST OR HAS ALREADY BEEN USED. 
 
             // check if token can be added to survey dynamically
             if($thissurvey['allow_dynamic_tokens'] == 'Y') 
             {
                 $token = new Tokens_dynamic;
+                Tokens_dynamic::sid($surveyid);
                 $token->token = trim(strip_tags($clienttoken));
                 $token->save();
             }
+            // EXPLAIN PROBLEM AND EXIT
             else
             {
                 killSurveySession($surveyid);

@@ -587,7 +587,7 @@ function getQuestions($surveyid,$gid,$selectedqid)
 {
     $clang = Yii::app()->lang;
     $s_lang = Survey::model()->findByPk($surveyid)->language;
-    $qrows = Questions::model()->findAllByAttributes(array('sid' => $surveyid, 'gid' => $gid, 'language' => $s_lang, 'parent_qid' => 0));
+    $qrows = Questions::model()->findAllByAttributes(array('sid' => $surveyid, 'gid' => $gid, 'language' => $s_lang, 'parent_qid' => 0),array('order'=>'question_order'));
 
     if (!isset($sQuestionselecter)) {$sQuestionselecter="";}
     foreach ($qrows as $qrow)
@@ -3070,7 +3070,7 @@ function questionAttributes($returnByName=false)
     "caption"=>$clang->gT('Answer width'));
 
     $qattributes["array_filter"]=array(
-    "types"=>"1ABCEF:;MPLKQ",
+    "types"=>"1ABCEF:;MPLKQR",
     'category'=>$clang->gT('Logic'),
     'sortorder'=>100,
     'inputtype'=>'text',
@@ -3078,7 +3078,7 @@ function questionAttributes($returnByName=false)
     "caption"=>$clang->gT('Array filter'));
 
     $qattributes["array_filter_exclude"]=array(
-    "types"=>"1ABCEF:;MPLKQ",
+    "types"=>"1ABCEF:;MPLKQR",
     'category'=>$clang->gT('Logic'),
     'sortorder'=>100,
     'inputtype'=>'text',
@@ -3086,7 +3086,7 @@ function questionAttributes($returnByName=false)
     "caption"=>$clang->gT('Array filter exclusion'));
 
     $qattributes["array_filter_style"]=array(
-    "types"=>"1ABCEF:;MPLKQ",
+    "types"=>"1ABCEF:;MPLKQR",
     'category'=>$clang->gT('Logic'),
     'sortorder'=>100,
     'inputtype'=>'singleselect',
@@ -3243,7 +3243,7 @@ function questionAttributes($returnByName=false)
     "caption"=>$clang->gT('Sub-question validation tip'));
 
     $qattributes["exclude_all_others"]=array(
-    "types"=>"MP",
+    "types"=>":ABCEFMPKQ",
     'category'=>$clang->gT('Logic'),
     'sortorder'=>130,
     'inputtype'=>'text',
@@ -3251,7 +3251,7 @@ function questionAttributes($returnByName=false)
     "caption"=>$clang->gT('Exclusive option'));
 
     $qattributes["exclude_all_others_auto"]=array(
-    "types"=>"M",
+    "types"=>"MP",
     'category'=>$clang->gT('Logic'),
     'sortorder'=>131,
     'inputtype'=>'singleselect',
@@ -5345,14 +5345,14 @@ function cleanTempDirectory()
     $dir =  Yii::app()->getConfig('tempdir').'/';
     $dp = opendir($dir) or show_error('Could not open temporary directory');
     while ($file = readdir($dp)) {
-        if (is_file($dir.$file) && (filemtime($dir.$file)) < (strtotime('-1 days')) && $file!='index.html' && $file!='.gitignore' && $file!='readme.txt' && $file!='..' && $file!='.' && $file!='.svn') {
+        if (is_file($dir.$file) && (filemtime($dir.$file)) < (strtotime('-1 days')) && $file!='index.html' && $file!='.gitignore' && $file!='readme.txt') {
             @unlink($dir.$file);
         }
     }
     $dir=  Yii::app()->getConfig('tempdir').'/uploads/';
     $dp = opendir($dir) or die ('Could not open temporary directory');
     while ($file = readdir($dp)) {
-        if (is_file($dir.$file) && (filemtime($dir.$file)) < (strtotime('-1 days')) && $file!='index.html' && $file!='.gitignore' && $file!='readme.txt' && $file!='..' && $file!='.' && $file!='.svn') {
+        if (is_file($dir.$file) && (filemtime($dir.$file)) < (strtotime('-1 days')) && $file!='index.html' && $file!='.gitignore' && $file!='readme.txt') {
             @unlink($dir.$file);
         }
     }
@@ -5618,7 +5618,7 @@ function getXMLWriter() {
 
 
 /**
-* Returns true when a token can not be used (either doesn't exist or has less then one usage left
+* Returns true when a token can not be used (either doesn't exist, has less then one usage left )
 *
 * @param mixed $tid Token
 */
@@ -5627,7 +5627,6 @@ function usedTokens($token, $surveyid)
     $utresult = true;
     Tokens_dynamic::sid($surveyid);
     $query=Tokens_dynamic::model()->findAllByAttributes(array("token"=>$token));
-
     if (count($query) > 0) {
         $row = $query[0];
         if ($row->usesleft > 0) $utresult = false;
@@ -5998,7 +5997,7 @@ function translateInsertansTags($newsid,$oldsid,$fieldnames)
     # translate 'quotals_urldescrip' and 'quotals_url' INSERTANS tags in quota_languagesettings
     $sql = "SELECT quotals_id, quotals_urldescrip, quotals_url from {{quota_languagesettings}} qls, {{quota}} q
     WHERE sid=".$newsid." AND q.id=qls.quotals_quota_id AND (quotals_urldescrip LIKE '%{$oldsid}X%' OR quotals_url LIKE '%{$oldsid}X%')";
-    $res = dbExecuteAssoc($sql) or safeDie("Can't read quota table in transInsertAns");     // Checked
+    $result = dbExecuteAssoc($sql) or safeDie("Can't read quota table in transInsertAns");     // Checked
 
     foreach ($result->readAll() as $qentry)
     {

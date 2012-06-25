@@ -33,14 +33,15 @@ class Authentication extends Survey_Common_Action
     public function index()
     {
     	if (Yii::app()->request->getPost('forwardAction')){
-			Yii::app()->session['redirectopage'] = Yii::app()->request->getPost('forwardAction');
-		}
+            Yii::app()->session['redirectopage'] = Yii::app()->request->getPost('forwardAction');
+        }
         $this->_redirectIfLoggedIn();
         $bCanLogin = $this->_userCanLogin();
 
         if ($bCanLogin && !is_array($bCanLogin))
         {
-            if (Yii::app()->request->getPost('action'))
+            $req = Yii::app()->request;
+            if ($req->getParam('action') || $req->getParam('forwardAction'))
             {
                 $aData = $this->_doLogin(Yii::app()->request->getPost('user'), Yii::app()->request->getPost('password'));
 

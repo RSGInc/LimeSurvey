@@ -97,11 +97,11 @@ class Tokens_dynamic extends LSActiveRecord
             {
                 $data=Yii::app()->db->createCommand()
                     ->select("COUNT(*) as tkcount, 
-                                SUM(CASE WHEN (token IS NULL OR token='') THEN 1 ELSE 0 END) as tkinvalid, 
-                                SUM(CASE WHEN (sent!='N' and sent<>'') THEN 1 ELSE 0 END) as tksent, 
-                                SUM(CASE WHEN (emailstatus = 'OptOut') THEN 1 ELSE 0 END) as tkoptout,
-                                SUM(CASE WHEN (completed!='N' and completed<>'') THEN 1 ELSE 0 END) as tkcompleted
-                                ")
+                        SUM(CASE WHEN (token IS NULL OR token='') THEN 1 ELSE 0 END) as tkinvalid,
+                        SUM(CASE WHEN (sent!='N' AND sent<>'') THEN 1 ELSE 0 END) as tksent,
+                        SUM(CASE WHEN (emailstatus LIKE 'OptOut%') THEN 1 ELSE 0 END) as tkoptout,
+                        SUM(CASE WHEN (completed!='N' and completed<>'') THEN 1 ELSE 0 END) as tkcompleted
+                        ")
                     ->from("{{tokens_$sid}}")
                     ->queryRow();
             }

@@ -10,14 +10,14 @@ class SurveysController extends BaseAPIController
 
     public function actionCopy()
     {
-        @$sid = $_POST['sid'];
-        if (@$_POST['copysurveytranslinksfields'] == "on" || @$_POST['translinksfields'] == "on")
+        $sid = $this->params('sid');
+        if ($this->params('copysurveytranslinksfields', false) == "on" || $this->params('translinksfields', false) == "on")
         {
             $sTransLinks = true;
         }
-        $sid = sanitize_int($_POST['copysurveylist']);
+        $sid = sanitize_int($this->params('copysurveylist'));
         $exclude = array();
-        $sNewSurveyName = $_POST['copysurveyname'];
+        $sNewSurveyName = $this->params('copysurveyname');
         Yii::app()->setLang(new Limesurvey_lang('en'));
         $clang = Yii::app()->lang;
     	$group['Arrays'] = $clang->gT('Arrays');
@@ -52,7 +52,7 @@ class SurveysController extends BaseAPIController
 
         Yii::app()->loadHelper("surveytranslator");
 
-    	$sTitle = $_POST['title'];
+    	$sTitle = $this->params("title");
         $aInsertData = array(
             'template' => "default",
             'owner_id' => 1, //Yii::app()-> session['loginID'],
@@ -84,7 +84,7 @@ class SurveysController extends BaseAPIController
     }
 	
 	public function actionExport(){
-		$iSurveyID = (int)$_POST['sid'];
+		$iSurveyID = (int)$this->params('sid');
 		Yii::app()->setLang(new Limesurvey_lang('en'));
 		$clang = Yii::app()->lang;
 		Yii::app()->loadHelper("admin/exportresults");
@@ -168,5 +168,4 @@ class SurveysController extends BaseAPIController
             }
             return $param;		
 	}
-	
 }

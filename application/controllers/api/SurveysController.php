@@ -10,14 +10,14 @@ class SurveysController extends BaseAPIController
 
     public function actionCopy()
     {
-        @$sid = $_GET['sid'];
+        @$sid = $_POST['sid'];
         if (@$_POST['copysurveytranslinksfields'] == "on" || @$_POST['translinksfields'] == "on")
         {
             $sTransLinks = true;
         }
 
         $exclude = array();
-        $sNewSurveyName = $_GET['copysurveyname'];
+        $sNewSurveyName = $_POST['copysurveyname'];
         Yii::app()->setLang(new Limesurvey_lang('en'));
         $clang = Yii::app()->lang;
     	$group['Arrays'] = $clang->gT('Arrays');

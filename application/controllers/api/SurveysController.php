@@ -17,7 +17,6 @@ class SurveysController extends BaseAPIController
         {
             $sTransLinks = true;
         }
-        $iSurveyID = sanitize_int($_POST['copysurveylist']);
         $exclude = array();
         $sNewSurveyName = $_POST['copysurveyname'];
 		Yii::app()->setLang(new Limesurvey_lang('en'));
@@ -32,19 +31,18 @@ class SurveysController extends BaseAPIController
         Yii::app()->loadHelper('export');
         $copysurveydata = surveyGetXMLData($iSurveyID, $exclude);
         Yii::app()->loadHelper('admin/import');
+        //Yii::app()->session['loginID'];
         if (empty($importerror) || !$importerror)
         {
             $aImportResults = XMLImportSurvey('', $copysurveydata, $sNewSurveyName);
-            if (!isset($exclude['permissions']))
-            {
-                Survey_permissions::model()->copySurveyPermissions($iSurveyID,$aImportResults['newsid']);
-            }
+            Survey_permissions::model()->copySurveyPermissions($iSurveyID,$aImportResults['newsid']);
         }
         else
         {
             $importerror = true;
         }
-		echo CJSON::encode(array('surveyid'=>$aImportResults['newsid']));
+        
+		echo CJSON::encode(array('sid'=>$aImportResults['newsid']));
  		Yii::app()->end();
     }
     
@@ -93,6 +91,7 @@ class SurveysController extends BaseAPIController
 		
 		$excesscols = createFieldMap($iSurveyID,'full',false,false,getBaseLanguageFromSurveyID($iSurveyID));
         $excesscols = array_keys($excesscols);
+        $excesscols = array_diff($excesscols, array("id", "Completed", "Last page seen", "Start language"));
 		$options->selectedColumns = $excesscols;
 		$surveybaselang = Survey::model()->findByPk($iSurveyID)->language;
         $exportoutput = "";
@@ -112,7 +111,7 @@ class SurveysController extends BaseAPIController
 		
 		$iSurveyID = $this->getSid();
 
-		Yii::app()->setLang(new Limesurvey_lang('en'));
+        Yii::app()->setLang(new Limesurvey_lang('en'));
 			
         $surveyInfo = getSurveyInfo($iSurveyID);
 		

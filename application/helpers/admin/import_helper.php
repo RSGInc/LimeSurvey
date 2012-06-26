@@ -3886,7 +3886,9 @@ function XMLImportSurvey($sFullFilepath,$sXMLdata=NULL,$sNewSurveyName=NULL,$iDe
     }
 
     // Set survey rights
-    Survey_permissions::model()->giveAllSurveyPermissions(Yii::app()->session['loginID'],$iNewSID);
+   
+    //Survey_permissions::model()->giveAllSurveyPermissions(Yii::app()->session['loginID'],$iNewSID);
+    Survey_permissions::model()->giveAllSurveyPermissions(1,$iNewSID);
     $aOldNewFieldmap=reverseTranslateFieldNames($oldsid,$iNewSID,$aGIDReplacements,$aQIDReplacements);
     $results['FieldReMap']=$aOldNewFieldmap;
     LimeExpressionManager::SetSurveyId($iNewSID);

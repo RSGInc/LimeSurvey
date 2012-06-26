@@ -200,8 +200,9 @@
                     || array_search("N{$surveyid}X{$flt[1]}X{$flt[0]}", $summary) !== FALSE)) { echo " checked='checked'"; } ?> />
             <label for='filter<?php echo $myfield; ?>'><?php echo _showSpeaker(flattenText($flt[5],true)); ?></label><br />
             <?php if ($flt[2] != "N" && $flt[2] != "|"): ?>
-                <select name='<?php endif; if ($flt[2] == "M" ) { echo "M";}; if ($flt[2] == "P" ) { echo "P";}; echo "{$surveyid}X{$flt[1]}X{$flt[0]}[]'";?> multiple='multiple'>
-            <?php endif; ?>
+                <select name='<?php if ($flt[2] == "M" ) { echo "M";}; if ($flt[2] == "P" ) { echo "P";}; echo "{$surveyid}X{$flt[1]}X{$flt[0]}[]";?>' multiple='multiple'>
+            <?php endif; 
+        endif; ?>
         <!-- QUESTION TYPE = <?php echo $flt[2]; ?> -->
         <?php
 
@@ -895,7 +896,7 @@
                         * - sortorder
                         * - language
                         */
-                        $fresult = $fresults[$key1][$key];
+                        $fresult = $fresults[$key1];
 
                         //for debugging only:
                         //echo $fquery;

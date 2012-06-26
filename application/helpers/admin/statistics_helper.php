@@ -1895,7 +1895,7 @@ function generate_statistics($surveyid, $allfields, $q2show='all', $usegraph=0, 
                         $qresult=Yii::app()->db->createCommand($qquery)->query();
 
                         //loop through answers
-                        foreach ($result->readAll() as $qrow)
+                        foreach ($qresult->readAll() as $qrow)
                         {
                             $qrow=array_values($qrow);
 

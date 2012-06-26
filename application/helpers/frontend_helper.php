@@ -1526,17 +1526,19 @@
 
         $tkresult = dbExecuteAssoc($tkquery);    //Checked
         $tkexist = reset($tkresult->read());
-        if (!$tkexist || $areTokensUsed)
+        if (!$tkexist ||  ($areTokensUsed && $thissurvey['alloweditaftercompletion'] != 'Y') )
         {
-            //TOKEN DOESN'T EXIST OR HAS ALREADY BEEN USED. EXPLAIN PROBLEM AND EXIT
+            //TOKEN DOESN'T EXIST OR HAS ALREADY BEEN USED. 
 
             // check if token can be added to survey dynamically
             if($thissurvey['allow_dynamic_tokens'] == 'Y') 
             {
                 $token = new Tokens_dynamic;
+                Tokens_dynamic::sid($surveyid);
                 $token->token = trim(strip_tags($clienttoken));
                 $token->save();
             }
+            // EXPLAIN PROBLEM AND EXIT
             else
             {
                 killSurveySession($surveyid);
@@ -2085,50 +2087,15 @@
     //    }
     // Prefill questions/answers from command line params
     $startingValues=array();
-    if (isset($_SESSION['survey_'.$surveyid]['insertarray']))
+    if (isset($_GET))
     {
-        foreach($_SESSION['survey_'.$surveyid]['insertarray'] as $field)
+        foreach ($_GET as $k=>$v)
         {
-            if (isset($_GET[$field]) && $field!='token')
+            if (preg_match('/^(token|sid|lang|newtest)$/',$k))
             {
-                $value=$_GET[$field];
-                $type = $fieldmap[$field]['type'];
-                switch($type)
-                {
-                    case 'D': //DATE
-                        if (trim($value)=="")
-                        {
-                            $value = NULL;
-                        }
-                        else
-                        {
-                            $dateformatdatat=getDateFormatData($thissurvey['surveyls_dateformat']);
-                            $datetimeobj = new Date_Time_Converter($value, $dateformatdatat['phpdate']);
-                            $value=$datetimeobj->convert("Y-m-d");
-                        }
-                        break;
-                    case 'N': //NUMERICAL QUESTION TYPE
-                    case 'K': //MULTIPLE NUMERICAL QUESTION
-                        if (trim($value)=="") {
-                            $value = NULL;
-                        }
-                        else {
-                            $value = sanitize_float($value);
-                        }
-                        break;
-                    case '|': //File Upload
-                        $value=NULL;  // can't upload a file via GET
-                        break;
-                }
-                if (!is_null($value))
-                {
-                    $_SESSION['survey_'.$surveyid][$field] = $value;
-                    $startingValues[$field] = array (
-                    'type'=>$type,
-                    'value'=>$value,
-                    );
-                }
+                continue;
             }
+            $startingValues[$k] = $v;
         }
     }
     $_SESSION['survey_'.$surveyid]['startingValues']=$startingValues;

@@ -57,7 +57,7 @@ class Survey_permissions extends CActiveRecord
 	 * @static
 	 * @return array
 	 */
-	public static function getBasePermissions($lang)
+	public static function getBasePermissions($lang="")
 	{
 		if(!empty($lang)){
 			$clang = $lang;

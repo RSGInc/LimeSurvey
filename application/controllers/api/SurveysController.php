@@ -10,14 +10,14 @@ class SurveysController extends BaseAPIController
 
     public function actionCopy()
     {
-        @$sid = $_POST['sid'];
+        @$sid = $_GET['sid'];
         if (@$_POST['copysurveytranslinksfields'] == "on" || @$_POST['translinksfields'] == "on")
         {
             $sTransLinks = true;
         }
 
         $exclude = array();
-        $sNewSurveyName = $_POST['copysurveyname'];
+        $sNewSurveyName = $_GET['copysurveyname'];
         Yii::app()->setLang(new Limesurvey_lang('en'));
         $clang = Yii::app()->lang;
     	$group['Arrays'] = $clang->gT('Arrays');
@@ -35,7 +35,7 @@ class SurveysController extends BaseAPIController
         {
             $aImportResults = XMLImportSurvey('', $copysurveydata, $sNewSurveyName);
 
-            Survey_permissions::model()->copySurveyPermissions($iSurveyID,$aImportResults['newsid']);
+            Survey_permissions::model()->copySurveyPermissions($sid,$aImportResults['newsid']);
         }
         else
         {

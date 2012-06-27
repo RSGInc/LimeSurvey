@@ -38,14 +38,11 @@ class SurveysController extends BaseAPIController
         {
             $importerror = true;
         }
-        
-		echo CJSON::encode(array('sid'=>$aImportResults['newsid']));
- 		Yii::app()->end();
+        $this->renderJSON(array('surveyid'=>$aImportResults['newsid']));
     }
     
 	public function actionCreate()
     {
-    	header('Content-type: application/json');
 
         Yii::app()->loadHelper("surveytranslator");
 
@@ -108,8 +105,7 @@ class SurveysController extends BaseAPIController
             }
         }
 
-        echo CJSON::encode(array('sid'=>$iNewSurveyid));
-        Yii::app()->end();
+        $this->renderJSON(array('sid'=>$iNewSurveyid));
     }
 	
 	public function actionExport(){
@@ -138,8 +134,6 @@ class SurveysController extends BaseAPIController
 	
 	public function actionActivate()
 	{
-	    header('Content-type: application/json');
-
             $sid = $this->params('sid');
             Yii::app()->setLang(new Limesurvey_lang('en'));
             $surveyInfo = getSurveyInfo($sid);		
@@ -169,10 +163,7 @@ class SurveysController extends BaseAPIController
             Yii::app()->loadHelper("admin/token");
             createTokenTable($sid);
 
-            echo CJSON::encode(
-                array('url' => $this->createAbsoluteUrl("/survey/index/sid/$sid"))
-            );
-            Yii::app()->end();
+            $this->renderJSON(array('url' => $this->createAbsoluteUrl("/survey/index/sid/$sid")));
 	}
 
     # CH 2012-6-12 removed actionDeactivate, as we determined that this would make our client code
@@ -187,7 +178,7 @@ class SurveysController extends BaseAPIController
         {
             $sids = $this->params("sids");
             $aData = Tokens_dynamic::summaries($sids);
-            echo CJSON::encode($aData);
+            $this->renderJSON($aData);
         }
 	
         private function params($paramName, $required = true) 
@@ -199,4 +190,11 @@ class SurveysController extends BaseAPIController
             }
             return $param;		
 	}
+
+        private function renderJSON($aReturnVals) 
+        {
+            header('Content-type: application/json');
+            echo CJSON::encode($aReturnVals);
+            Yii::app()->end();
+        }
 }

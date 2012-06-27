@@ -49,6 +49,7 @@
                             </ul></li>
                     </ul></li>
                 <?php } ?>
+        <?php if($surveylocale || $surveysettings || $surveysecurity || $quotas || $assessments || $surveylocale || $onelanguage) { ?>
             <li><a href='#'>
                     <img src='<?php echo $sImageURL;?>edit.png' alt='<?php $clang->eT("Survey properties");?>' width="<?php echo $iIconSize;?>" height="<?php echo $iIconSize;?>"/></a><ul>
                     <?php if($surveylocale) { ?>
@@ -90,6 +91,8 @@
                         </li>
                         <?php } ?>
                 </ul></li>
+        <?php } ?>
+        <?php if($surveydelete || $surveytranslate || hasSurveyPermission($surveyid,'surveycontent','update')) { ?>
             <li><a href="#">
                     <img src='<?php echo $sImageURL;?>tools.png' alt='<?php $clang->eT("Tools");?>' width="<?php echo $iIconSize;?>" height="<?php echo $iIconSize;?>"/></a><ul>
                     <?php if ($surveydelete) { ?>
@@ -121,6 +124,8 @@
                         </li>
                         <?php } ?>
                 </ul></li>
+        <?php } ?>
+        <?php if($surveyexport || $respstatsread || $onelanguage) { ?>
             <li><a href='#'>
                     <img src='<?php echo $sImageURL;?>display_export.png' alt='<?php $clang->eT("Display / Export");?>' width="<?php echo $iIconSize;?>" height="<?php echo $iIconSize;?>"/></a><ul>
                     <?php if($surveyexport) { ?>
@@ -182,6 +187,8 @@
                             <?php }
                     } ?>
                 </ul></li>
+        <?php } ?>
+        <?php if($responsescreate || $respstatsread) { ?>
             <li><a href='#'><img src='<?php echo $sImageURL;?>responses.png' alt='<?php $clang->eT("Responses");?>' width="<?php echo $iIconSize;?>" height="<?php echo $iIconSize;?>"/></a><ul>
                     <?php if($respstatsread) {
                             if($activated) { ?>
@@ -211,7 +218,7 @@
                             <?php }
                     } ?>
                 </ul></li>
-
+            <?php } ?>
             <?php if($surveycontent)
                 {
                     if ($activated)

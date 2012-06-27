@@ -205,11 +205,12 @@ class Survey_Common_Action extends CAction
             Yii::app()->getController()->_getAdminHeader();
         }
 
-
         // Menu bars
         if (!isset($aData['display']['menu_bars']) || ($aData['display']['menu_bars'] !== false && (!is_array($aData['display']['menu_bars']) || !in_array('browse', array_keys($aData['display']['menu_bars'])))))
         {
-            Yii::app()->getController()->_showadminmenu(!empty($aData['surveyid']) ? $aData['surveyid'] : null);
+            if($this->isNotSetOrTrue($aData['display']['admin_menu'])) {
+                Yii::app()->getController()->_showadminmenu(!empty($aData['surveyid']) ? $aData['surveyid'] : null);
+            }
 
             if (!empty($aData['surveyid']))
             {
@@ -1008,6 +1009,13 @@ class Survey_Common_Action extends CAction
         while (!mkdir($path, $mode));
 
         return $path;
+    }
+
+    /**
+     * @return true if variable is true or if it is unset
+     */
+    private function isNotSetOrTrue(&$var){
+        return !isset($var) || $var;
     }
 
 }

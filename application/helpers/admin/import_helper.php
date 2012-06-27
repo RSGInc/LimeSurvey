@@ -3403,7 +3403,7 @@ function XMLImportSurvey($sFullFilepath,$sXMLdata=NULL,$sNewSurveyName=NULL,$iDe
         //Make sure it is not set active
         $insertdata['active']='N';
         //Set current user to be the owner
-        $insertdata['owner_id']=Yii::app()->session['loginID'];
+        $insertdata['owner_id']=1;//Yii::app()->session['loginID'];
 
         if (isset($insertdata['bouncetime']) && $insertdata['bouncetime'] == '')
         {
@@ -3864,9 +3864,11 @@ function XMLImportSurvey($sFullFilepath,$sXMLdata=NULL,$sNewSurveyName=NULL,$iDe
         }
     }
 
-    // Set survey rights
-    Survey_permissions::model()->giveAllSurveyPermissions(Yii::app()->session['loginID'],$iNewSID);
+    // Set survey rights   
+    //Survey_permissions::model()->giveAllSurveyPermissions(Yii::app()->session['loginID'],$iNewSID);
+    Survey_permissions::model()->giveAllSurveyPermissions(1,$iNewSID);
     $aOldNewFieldmap=reverseTranslateFieldNames($iOldSID,$iNewSID,$aGIDReplacements,$aQIDReplacements);
+
     $results['FieldReMap']=$aOldNewFieldmap;
     LimeExpressionManager::SetSurveyId($iNewSID);
     translateInsertansTags($iNewSID,$iOldSID,$aOldNewFieldmap);

@@ -238,6 +238,8 @@ class SurveyAdmin extends Survey_Common_Action
         $aData['surveyid'] = $iSurveyID;
         $aData['gid'] = $gid;
         $aData['qid'] = $qid;
+        $current_user_id = Yii::app()->session['loginID'];
+        $aData['display']['admin_menu'] = User::model()->findByPk($current_user_id)->full_name != "CMI Staff";
         $aData['display']['menu_bars']['surveysummary'] = true;
 
         $this->_renderWrappedTemplate('survey', array(), $aData);

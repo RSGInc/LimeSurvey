@@ -18,28 +18,33 @@ class Survey_answers extends CActiveRecord
     function getAnswersForSurveys($iSurveyIDs = array())
     {
     	$answerSql = $this->getSimpleAnswersQuery();
-    	$this->joinSurveys($answerSql, $iSurveyIDs);
-    	 
     	$multiSql = $this->getMultipleChoiceAnswersQuery();
-    	$this->joinSurveys($multiSql, $iSurveyIDs);
-    	 
-    	$yesNoSql = $this->getYesNoAnswersQuery();
-    	$this->joinSurveys($yesNoSql, $iSurveyIDs);
-    	 
-		$unioned = "SELECT * FROM (".
+    	$yesNoSql = $this->getYesNoAnswersSql();
+
+		$unioned = "SELECT a.* FROM (".
 						$answerSql->getText().
 					" UNION ".
 						$multiSql->getText().
 					" UNION ".
-						$yesNoSql->getText().
-					") a ORDER BY sid, ordering, subordering";
+						$yesNoSql.
+					") a";
+		if ($iSurveyIDs)
+		{
+			$unioned .= " WHERE a.sid IN (".implode(", ", $iSurveyIDs).")";
+		}
+		else
+		{
+			$unioned .= " JOIN {{surveys}} s ON s.sid=a.sid and s.active='Y'";
+		}
+		$unioned .= " ORDER BY a.sid, a.qid, a.`order`";
+		
     	return Yii::app()->db->createCommand($unioned)->queryAll();		 
     }
 
     private function getSimpleAnswersQuery() 
     {
     	$query = Yii::app()->db->createCommand();
-    	$query->select("a.qid id, a.code, a.answer defaulttext, a.sortorder `order`");
+    	$query->select("q.sid, a.qid, a.code, a.answer defaulttext, a.sortorder order");
     	$query->from("{{answers}} a");
     	$query->join("{{questions}} q",  "q.qid=a.qid");
     	return $query;    	 
@@ -48,32 +53,25 @@ class Survey_answers extends CActiveRecord
     private function getMultipleChoiceAnswersQuery()
     {
     	$query = Yii::app()->db->createCommand();
-    	$query->select("qid id, q.title code, q.question defaulttext, q.question_order `order`");
+    	$query->select("q.sid, q.qid, q.title code, q.question defaulttext, q.question_order order");
     	$query->from("{{questions}} q");
-    	$query->join("{{questions}} parent ON q.parent_qid=parent.qid AND parent.type='M'");
+    	$query->join("{{questions}} parent", "q.parent_qid=parent.qid AND parent.type='M'");
     	return $query;
     }
     
-    private function getYesNoAnswersQuery()
+    private function getYesNoAnswersSql()
     {
-    	$query = Yii::app()->db->createCommand();
-    	$query->select("qid id, q.title code, q.question defaulttext, q.question_order `order`");
-    	$query->from("{{questions}} q");
-    	$query->join("{{questions}} parent ON q.parent_qid=parent.qid AND parent.type='M'");
+    	$query = "SELECT * FROM (
+      		SELECT q.sid, q.qid, ('Y') code, ('Yes') defaulttext, (1) `order` FROM {{questions}} q WHERE q.type='Y'
+      			UNION 
+      		SELECT q.sid, q.qid, ('N') code, ('No') defaulttext, (2) `order` FROM {{questions}} q WHERE q.type='Y'
+      			UNION
+      		SELECT q.sid, q.qid, ('') code, ('No answer') defaulttext, (3) `order` FROM {{questions}} q WHERE q.type='Y'
+      	) yesno";
+    		
     	return $query;
     }
 
-    private function joinSurveys($query, $iSurveyIDs)
-    {
-    	if ($iSurveyIDs)
-    	{
-    		$query->where("q.sid IN (".implode(", ", $iSurveyIDs).")");
-    	}
-    	else
-    	{
-    		$query->join("{{surveys}} s", "s.sid=q.sid and s.active='Y'");
-    	}
-    }
     
 }
 

@@ -42,14 +42,14 @@ class Survey_questions extends CActiveRecord{
     	$this->joinSurveys($otherQuestionSql, $iSurveyIDs);
     	 
     	// couldn't figure out how to get setUnion to work like this...
-		$unioned = "SELECT * FROM (".
+		$unioned = "SELECT sid, gid, qid, type, extType, name, description, context FROM (".
 						$questionSql->getText().
 					" UNION ".
 						$subQuestionSql->getText().
 					" UNION ".
 						$otherQuestionSql->getText().
-					") a ORDER BY sid, ordering, subordering";
-    	return Yii::app()->db->createCommand($unioned)->queryAll();		 
+					") a ORDER BY a.sid, a.ordering, a.subordering";
+    	return Yii::app()->db->createCommand($unioned)->queryAll();
     }
 
     private function getExternalTypeSql($typeCol) 
@@ -81,7 +81,7 @@ class Survey_questions extends CActiveRecord{
     private function getSubQuestionQuery()
     {
     	$query = Yii::app()->db->createCommand();
-    	$query->select("q.sid, q.qid, q.gid, parent.type, ".$this->getExternalTypeSql('parent.type').", q.title name, q.question description, parent.question context, parent.question_order ordering, q.question_order subordering"); 
+    	$query->select("q.sid, parent.qid, q.gid, parent.type, ".$this->getExternalTypeSql('parent.type').", q.title name, q.question description, parent.question context, parent.question_order ordering, q.question_order subordering"); 
     	$query->from("{{questions}} q");
     	$query->join("{{questions}} parent",  "q.parent_qid=parent.qid AND parent.type='F'");
     	return $query;

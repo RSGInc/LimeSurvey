@@ -21,7 +21,7 @@ class Survey_answers extends CActiveRecord
     	$multiSql = $this->getMultipleChoiceAnswersQuery();
     	$yesNoSql = $this->getYesNoAnswersSql();
 
-		$unioned = "SELECT a.* FROM (".
+		$unioned = "SELECT a.qid, a.code, a.defaulttext FROM (".
 						$answerSql->getText().
 					" UNION ".
 						$multiSql->getText().
@@ -36,7 +36,7 @@ class Survey_answers extends CActiveRecord
 		{
 			$unioned .= " JOIN {{surveys}} s ON s.sid=a.sid and s.active='Y'";
 		}
-		$unioned .= " ORDER BY a.sid, a.qid, a.`order`";
+		$unioned .= " ORDER BY a.qid, a.`order`";
 		
     	return Yii::app()->db->createCommand($unioned)->queryAll();		 
     }

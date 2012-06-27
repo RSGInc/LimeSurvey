@@ -10,6 +10,7 @@ class SurveysController extends BaseAPIController
 
     public function actionCopy()
     {
+        header('Content-type: application/json');
         @$sid = $_POST['sid'];
         if (@$_POST['copysurveytranslinksfields'] == "on" || @$_POST['translinksfields'] == "on")
         {

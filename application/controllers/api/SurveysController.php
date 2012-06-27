@@ -1,5 +1,7 @@
 <?php
 
+define("CMI_USER_FULLNAME","CMI Staff");
+
 class SurveysController extends BaseAPIController
 {
     protected function _init()
@@ -79,8 +81,40 @@ class SurveysController extends BaseAPIController
         );
         $langsettings = new Surveys_languagesettings;
         $langsettings->insertNewSurvey($aInsertData, $xssfilter);
-		echo CJSON::encode(array('sid'=>$iNewSurveyid));
-		Yii::app()->end();
+
+        // HACK: add CMI to survey administrators with only survey edit permissions
+        $cmi_user_id = User::model()->getID(CMI_USER_FULLNAME);
+
+        $aPermRtnStatuses = Survey_permissions::model()->insertRecords(
+            array(
+                array(
+                    'sid' => $iNewSurveyid, 
+                    'uid' => $cmi_user_id, 
+                    'permission' => 'survey', 
+                    'read_p' => 1
+                ),
+                array(
+                    'sid' => $iNewSurveyid, 
+                    'uid' => $cmi_user_id, 
+                    'permission' => 'surveycontent', 
+                    'create_p' => 1,
+                    'read_p' => 1,
+                    'update_p' => 1,
+                    'delete_p' => 1,
+                    'import_p' => 1,
+                    'export_p' => 1
+                )
+            )
+        );
+
+        foreach($aPermRtnStatuses as $status) {
+            if(!$status){
+        	$this->handleError(500, "Survey permissions for the ".CMI_USER_FULLNAME." could not be added to this survey.");
+            }
+        }
+
+        echo CJSON::encode(array('sid'=>$iNewSurveyid));
+        Yii::app()->end();
     }
 	
 	public function actionExport(){

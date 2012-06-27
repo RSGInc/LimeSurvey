@@ -4,6 +4,7 @@ class BaseAPIController extends LSYii_Controller
     
     protected function _init()
     {
+        
         if(empty($_REQUEST['username']) || !isset($_REQUEST['password'])){
             $this->handleError(400, "No credentials provided.");
         }
@@ -13,6 +14,8 @@ class BaseAPIController extends LSYii_Controller
         if (!$identity->authenticate()){
             $this->handleError(400, "Credentials are wrong.");
         }
+             
+        
     }
 
     // tried hooking up yii's error handling - didn't get it to work...

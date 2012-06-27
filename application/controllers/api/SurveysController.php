@@ -10,12 +10,13 @@ class SurveysController extends BaseAPIController
 
     public function actionCopy()
     {
+        header('Content-type: application/json');
         @$sid = $_POST['sid'];
         if (@$_POST['copysurveytranslinksfields'] == "on" || @$_POST['translinksfields'] == "on")
         {
             $sTransLinks = true;
         }
-        $sid = sanitize_int($_POST['copysurveylist']);
+
         $exclude = array();
         $sNewSurveyName = $_POST['copysurveyname'];
         Yii::app()->setLang(new Limesurvey_lang('en'));
@@ -30,19 +31,19 @@ class SurveysController extends BaseAPIController
         Yii::app()->loadHelper('export');
         $copysurveydata = surveyGetXMLData($sid, $exclude);
         Yii::app()->loadHelper('admin/import');
+        //Yii::app()->session['loginID'];
         if (empty($importerror) || !$importerror)
         {
             $aImportResults = XMLImportSurvey('', $copysurveydata, $sNewSurveyName);
-            if (!isset($exclude['permissions']))
-            {
-                Survey_permissions::model()->copySurveyPermissions($sid,$aImportResults['newsid']);
-            }
+
+            Survey_permissions::model()->copySurveyPermissions($sid,$aImportResults['newsid']);
         }
         else
         {
             $importerror = true;
         }
-		echo CJSON::encode(array('surveyid'=>$aImportResults['newsid']));
+        
+		echo CJSON::encode(array('sid'=>$aImportResults['newsid']));
  		Yii::app()->end();
     }
     
@@ -93,6 +94,7 @@ class SurveysController extends BaseAPIController
 		
 		$excesscols = createFieldMap($iSurveyID,'full',false,false,getBaseLanguageFromSurveyID($iSurveyID));
         $excesscols = array_keys($excesscols);
+        $excesscols = array_diff($excesscols, array("id", "Completed", "Last page seen", "Start language"));
 		$options->selectedColumns = $excesscols;
 		$surveybaselang = Survey::model()->findByPk($iSurveyID)->language;
         $exportoutput = "";
@@ -108,10 +110,11 @@ class SurveysController extends BaseAPIController
 	
 	public function actionActivate()
 	{
+	    header('Content-type: application/json');
+
             $sid = $this->params('sid');
             Yii::app()->setLang(new Limesurvey_lang('en'));
-            $surveyInfo = getSurveyInfo($sid);
-		
+            $surveyInfo = getSurveyInfo($sid);		
             if (!isset($surveyInfo['active']) || $surveyInfo['active'] == 'Y')
             {
         	$this->handleError(500, "Survey activity not set or already active.");

@@ -1,5 +1,7 @@
 <?php
 
+define("CMI_USER_FULLNAME","CMI Staff");
+
 class SurveysController extends BaseAPIController
 {
     protected function _init()
@@ -10,24 +12,18 @@ class SurveysController extends BaseAPIController
 
     public function actionCopy()
     {
-        header('Content-type: application/json');
-        @$sid = $_POST['sid'];
-        if (@$_POST['copysurveytranslinksfields'] == "on" || @$_POST['translinksfields'] == "on")
+        $sid = $this->params('sid');
+        if ($this->params('copysurveytranslinksfields', false) == "on" || $this->params('translinksfields', false) == "on")
         {
             $sTransLinks = true;
         }
-
+        $sid = sanitize_int($this->params('sid'));
         $exclude = array();
-        $sNewSurveyName = $_POST['copysurveyname'];
+        $sNewSurveyName = $this->params('copysurveyname');
         Yii::app()->setLang(new Limesurvey_lang('en'));
         $clang = Yii::app()->lang;
     	$group['Arrays'] = $clang->gT('Arrays');
 		 
-        if (!$sid)
-        {
-            echo 0;
-            return;
-        }
         Yii::app()->loadHelper('export');
         $copysurveydata = surveyGetXMLData($sid, $exclude);
         Yii::app()->loadHelper('admin/import');
@@ -42,18 +38,15 @@ class SurveysController extends BaseAPIController
         {
             $importerror = true;
         }
-        
-		echo CJSON::encode(array('sid'=>$aImportResults['newsid']));
- 		Yii::app()->end();
+        $this->renderJSON(array('surveyid'=>$aImportResults['newsid']));
     }
     
 	public function actionCreate()
     {
-    	header('Content-type: application/json');
 
         Yii::app()->loadHelper("surveytranslator");
 
-    	$sTitle = $_POST['title'];
+    	$sTitle = $this->params("title");
         $aInsertData = array(
             'template' => "default",
             'owner_id' => 1, //Yii::app()-> session['loginID'],
@@ -80,12 +73,43 @@ class SurveysController extends BaseAPIController
         );
         $langsettings = new Surveys_languagesettings;
         $langsettings->insertNewSurvey($aInsertData, $xssfilter);
-		echo CJSON::encode(array('sid'=>$iNewSurveyid));
-		Yii::app()->end();
+
+        // HACK: add CMI to survey administrators with only survey edit permissions
+        $cmi_user_id = User::model()->getID(CMI_USER_FULLNAME);
+
+        $aPermRtnStatuses = Survey_permissions::model()->insertRecords(
+            array(
+                array(
+                    'sid' => $iNewSurveyid, 
+                    'uid' => $cmi_user_id, 
+                    'permission' => 'survey', 
+                    'read_p' => 1
+                ),
+                array(
+                    'sid' => $iNewSurveyid, 
+                    'uid' => $cmi_user_id, 
+                    'permission' => 'surveycontent', 
+                    'create_p' => 1,
+                    'read_p' => 1,
+                    'update_p' => 1,
+                    'delete_p' => 1,
+                    'import_p' => 1,
+                    'export_p' => 1
+                )
+            )
+        );
+
+        foreach($aPermRtnStatuses as $status) {
+            if(!$status){
+        	$this->handleError(500, "Survey permissions for the ".CMI_USER_FULLNAME." could not be added to this survey.");
+            }
+        }
+
+        $this->renderJSON(array('sid'=>$iNewSurveyid));
     }
 	
 	public function actionExport(){
-		$iSurveyID = (int)$_POST['sid'];
+		$iSurveyID = (int)$this->params('sid');
 		Yii::app()->setLang(new Limesurvey_lang('en'));
 		$clang = Yii::app()->lang;
 		Yii::app()->loadHelper("admin/exportresults");
@@ -110,8 +134,6 @@ class SurveysController extends BaseAPIController
 	
 	public function actionActivate()
 	{
-	    header('Content-type: application/json');
-
             $sid = $this->params('sid');
             Yii::app()->setLang(new Limesurvey_lang('en'));
             $surveyInfo = getSurveyInfo($sid);		
@@ -141,10 +163,7 @@ class SurveysController extends BaseAPIController
             Yii::app()->loadHelper("admin/token");
             createTokenTable($sid);
 
-            echo CJSON::encode(
-                array('url' => $this->createAbsoluteUrl("/survey/index/sid/$sid"))
-            );
-            Yii::app()->end();
+            $this->renderJSON(array('url' => $this->createAbsoluteUrl("/survey/index/sid/$sid")));
 	}
 
     # CH 2012-6-12 removed actionDeactivate, as we determined that this would make our client code
@@ -159,7 +178,7 @@ class SurveysController extends BaseAPIController
         {
             $sids = $this->params("sids");
             $aData = Tokens_dynamic::summaries($sids);
-            echo CJSON::encode($aData);
+            $this->renderJSON($aData);
         }
 	
         private function params($paramName, $required = true) 
@@ -171,5 +190,11 @@ class SurveysController extends BaseAPIController
             }
             return $param;		
 	}
-	
+
+        private function renderJSON($aReturnVals) 
+        {
+            header('Content-type: application/json');
+            echo CJSON::encode($aReturnVals);
+            Yii::app()->end();
+        }
 }

@@ -1,8 +1,8 @@
 <?php
 
 // returns answers for all answer types as specified in 
-//   Survey_questions::getExternalTypeSql() as type 'A'
-class Survey_answers extends CActiveRecord
+//   Filter_questions::getExternalTypeSql() as type 'A'
+class Filter_answers extends CActiveRecord
 {
 
 	public static function model($class = __CLASS__)
@@ -15,7 +15,7 @@ class Survey_answers extends CActiveRecord
 		return '{{answers}}';
 	}
 
-    function getAnswersForSurveys($iSurveyIDs = array())
+    function getAnswers($iSurveyIDs = array())
     {
     	$answerSql = $this->getSimpleAnswersQuery();
     	$multiSql = $this->getMultipleChoiceAnswersQuery();
@@ -36,7 +36,7 @@ class Survey_answers extends CActiveRecord
 		{
 			$unioned .= " JOIN {{surveys}} s ON s.sid=a.sid and s.active='Y'";
 		}
-		$unioned .= " ORDER BY a.qid, a.`order`";
+		$unioned .= " ORDER BY a.qid, a.`ordering`";
 		
     	return Yii::app()->db->createCommand($unioned)->queryAll();		 
     }
@@ -44,7 +44,7 @@ class Survey_answers extends CActiveRecord
     private function getSimpleAnswersQuery() 
     {
     	$query = Yii::app()->db->createCommand();
-    	$query->select("q.sid, a.qid, a.code, a.answer defaulttext, a.sortorder order");
+    	$query->select("q.sid, a.qid, a.code, a.answer defaulttext, a.sortorder ordering");
     	$query->from("{{answers}} a");
     	$query->join("{{questions}} q",  "q.qid=a.qid");
     	return $query;    	 
@@ -53,7 +53,7 @@ class Survey_answers extends CActiveRecord
     private function getMultipleChoiceAnswersQuery()
     {
     	$query = Yii::app()->db->createCommand();
-    	$query->select("q.sid, q.qid, q.title code, q.question defaulttext, q.question_order order");
+    	$query->select("q.sid, q.parent_qid qid, ('Y') code, q.question defaulttext, q.question_order ordering");
     	$query->from("{{questions}} q");
     	$query->join("{{questions}} parent", "q.parent_qid=parent.qid AND parent.type='M'");
     	return $query;
@@ -62,12 +62,12 @@ class Survey_answers extends CActiveRecord
     private function getYesNoAnswersSql()
     {
     	$query = "SELECT * FROM (
-      		SELECT q.sid, q.qid, ('Y') code, ('Yes') defaulttext, (1) `order` FROM {{questions}} q WHERE q.type='Y'
+      		SELECT q.sid, q.qid, ('Y') code, ('Yes') defaulttext, (1) `ordering` FROM {{questions}} q WHERE q.type='Y'
       			UNION 
-      		SELECT q.sid, q.qid, ('N') code, ('No') defaulttext, (2) `order` FROM {{questions}} q WHERE q.type='Y'
+      		SELECT q.sid, q.qid, ('N') code, ('No') defaulttext, (2) `ordering` FROM {{questions}} q WHERE q.type='Y'
       			UNION
-      		SELECT q.sid, q.qid, ('') code, ('No answer') defaulttext, (3) `order` FROM {{questions}} q WHERE q.type='Y'
-      	) yesno";
+      		SELECT q.sid, q.qid, ('') code, ('No answer') defaulttext, (3) `ordering` FROM {{questions}} q WHERE q.type='Y'
+      	) yn";
     		
     	return $query;
     }

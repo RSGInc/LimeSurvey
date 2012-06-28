@@ -1,6 +1,4 @@
 <?php
-
-
 class FilterController extends BaseAPIController
 {
 	
@@ -14,43 +12,46 @@ class FilterController extends BaseAPIController
     {
     	header('Content-type: application/json');
     	$sids = $this->getSurveyIDs();
-    	echo json_encode(Survey_questions::model()->getQuestionsForSurveys($sids));
+    	echo json_encode(Filter_questions::model()->getQuestions($sids));
 		exit();
     }
 
     public function actionAnswers()
     {
-    	header('Content-type: application/json');
+    	//header('Content-type: application/json');
     	$sids = $this->getSurveyIDs();
-    	echo json_encode(Survey_answers::model()->getAnswersForSurveys($sids));
+    	echo json_encode(Filter_answers::model()->getAnswers($sids));
     	exit();
     }
 
-    public function getSurveys() 
+    public function actionResponses()
     {
-    	header('Content-type: application/json');
+    	//header('Content-type: application/json');
     	
     	// get a list of filters keyed by each survey id
+    	// cid is column id as specified in Filter_questions model
     	$filtersBySurvey = array();
-    	$qids = $_POST['qid'];
-    	foreach ($qids as $qid) {
-    		$sid = $_POST['sid_'.$qid];
+    	$cids = $_POST['cid'];
+    	foreach ($cids as $cid) {
+    		$sid = $_POST['sid_'.$cid];
     		
     		$filter = new stdClass();
-    		$filter->qid = $qid;
-    		$filter->gid = $_POST['gid_'.$qid];
-    		$filter->type = $_POST['type_'.$qid];
-    		$filter->name = $_POST['name_'.$qid];
-    		$filter->codes = $this->getArrayFromPost('code_'.$qid);
-    		$filter->values = $this->getArrayFromPost('value_'.$qid);
+    		$filter->cid = $cid;
+    		$filter->sid = $sid;
+    		$filter->qid = $_POST['qid_'.$cid];
+    		$filter->gid = $_POST['gid_'.$cid];
+    		$filter->type = $_POST['type_'.$cid];
+    		$filter->name = $_POST['name_'.$cid];
+    		$filter->codes = $this->getArrayFromPost('code_'.$cid);
+    		$filter->values = $this->getArrayFromPost('value_'.$cid);
     		    		    		
-    		if (!$filtersBySurvey[$sid]) {
+    		if (!isset($filtersBySurvey[$sid])) {
     			$filtersBySurvey[$sid] = array();
     		}    		
     		array_push($filtersBySurvey[$sid], $filter);
     	}
-    	   	
-    	echo json_encode(Survey_filter::model()->getSurveyResponses($filtersBySurvey));
+    	$filter = new Filter_responses();
+    	echo json_encode($filter->getResponses($filtersBySurvey));
     }
         
     private function getSurveyIDs() 
@@ -64,7 +65,7 @@ class FilterController extends BaseAPIController
     	@$values = $_POST[$name];
 
     	// not present or not populated gets an empty array
-    	if (!$value || $values && count($values) == 1 && $values[0] === "") {
+    	if (!$values || $values && count($values) == 1 && $values[0] === "") {
     		$values = array();
     	}
     	return $values;

@@ -15,9 +15,12 @@
  *  S short free text
  *  M multiple choice
  *  ~ other (for all 'Other' questions, the ~ is a new type key for filtering)
+ *  
+ * cid is for the caller's column id - unique per question to display 
+ *   this is needed b/c array questions share the same qid but will have separate columns
  */
 
-class Survey_questions extends CActiveRecord{
+class Filter_questions extends CActiveRecord{
 	
 	public static function model($class = __CLASS__)
 	{
@@ -30,7 +33,7 @@ class Survey_questions extends CActiveRecord{
 	}
 
 	// ordering and subordering are relative only - there are gaps		
-    function getQuestionsForSurveys($iSurveyIDs = array())
+    function getQuestions($iSurveyIDs = array())
     {    	   	
     	$questionSql = $this->getQuestionQuery();
     	$this->joinSurveys($questionSql, $iSurveyIDs);
@@ -42,7 +45,7 @@ class Survey_questions extends CActiveRecord{
     	$this->joinSurveys($otherQuestionSql, $iSurveyIDs);
     	 
     	// couldn't figure out how to get setUnion to work like this...
-		$unioned = "SELECT sid, gid, qid, type, extType, name, description, context FROM (".
+		$unioned = "SELECT sid, gid, qid, cid, type, extType, name, description, context FROM (".
 						$questionSql->getText().
 					" UNION ".
 						$subQuestionSql->getText().
@@ -52,7 +55,7 @@ class Survey_questions extends CActiveRecord{
     	return Yii::app()->db->createCommand($unioned)->queryAll();
     }
 
-    private function getExternalTypeSql($typeCol) 
+    private function getExternalTypeSql($typeCol)
     {
     	$answerTypes = array('F', 'L', 'M', 'Y');
     	$textTypes = array('S', 'T');
@@ -69,7 +72,7 @@ class Survey_questions extends CActiveRecord{
     private function getQuestionQuery() 
     {	
     	$query = Yii::app()->db->createCommand();
-    	$query->select("q.sid, q.qid, q.gid, q.type, ".$this->getExternalTypeSql('q.type').", q.title name, 
+    	$query->select("q.sid, q.gid, q.qid, q.qid cid, q.type, ".$this->getExternalTypeSql('q.type').", q.title name, 
     					q.question description, ('') context, question_order ordering, (0) subordering");
     	$query->from("{{questions}} q");
     
@@ -81,7 +84,8 @@ class Survey_questions extends CActiveRecord{
     private function getSubQuestionQuery()
     {
     	$query = Yii::app()->db->createCommand();
-    	$query->select("q.sid, parent.qid, q.gid, parent.type, ".$this->getExternalTypeSql('parent.type').", q.title name, q.question description, parent.question context, parent.question_order ordering, q.question_order subordering"); 
+    	$query->select("q.sid, q.gid, parent.qid, q.qid cid, parent.type, ".$this->getExternalTypeSql('parent.type').", q.title name, 
+    			q.question description, parent.question context, parent.question_order ordering, q.question_order subordering"); 
     	$query->from("{{questions}} q");
     	$query->join("{{questions}} parent",  "q.parent_qid=parent.qid AND parent.type='F'");
     	return $query;
@@ -91,7 +95,7 @@ class Survey_questions extends CActiveRecord{
     private function getOtherQuestionQuery()
     {
     	$query = Yii::app()->db->createCommand();
-    	$query->select("q.sid, q.qid, q.gid, ('~') type, ('T') extType, CONCAT(q.title, 'Other') name, ('Other') description, q.question context, q.question_order ordering, (MAX(IFNULL(children.question_order,0)) + 1) subordering"); 
+    	$query->select("q.sid, q.gid, q.qid, concat(q.qid, 'other') cid, ('~') type, ('T') extType, 'other' name, ('Other') description, q.question context, q.question_order ordering, (MAX(IFNULL(children.question_order,0)) + 1) subordering"); 
     	$query->from("{{questions}} q");
     	$query->leftJoin("{{questions}} children",  "q.qid=children.parent_qid");
     	$query->where("q.other='Y'");

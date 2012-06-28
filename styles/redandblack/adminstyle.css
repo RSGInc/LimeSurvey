@@ -39,12 +39,7 @@ hr{
 
 /* Wrapper */
 .wrapper {
-    min-height: 100%;
-    height: auto !important;
-    height: 100%;
-    margin: 0 auto -40px;
-    background-color:#fefefe;
-    width:100%;
+    min-height: 90%;
 }
 
 /* Administration footer box */
@@ -56,6 +51,7 @@ hr{
     border-top: 1px solid #eee;
     width:98%;
     clear: both;
+    display: none;
 }
 
 .push {
@@ -97,12 +93,14 @@ legend {
 .maintitle {
     font-size: 14pt;
     font-weight: 700;
-    color: #8CCE00;
+    color: #fff;
+    background-color:#333;
     text-align: left;
-    padding:0.2em 1em 0.2em 0.2em;
+    padding: 1em;
     border-bottom: 1px solid #eee;
-    width:96%;
-    margin:0 auto;
+    background-repeat: no-repeat;
+    background-position: right middle;
+    background-attachment: fixed;
 }
 
 table.statisticstable {
@@ -114,7 +112,7 @@ table.statisticstable span {
 }
 
 span.basic {
-    color: #1d2d45;
+    color: #fff;
 }
 
 .statisticstable td {
@@ -125,9 +123,6 @@ span.basic {
 div.menubar {
     background-color: #fefefe;
     clear:left;
-    padding:0;
-    margin:0 auto 58px auto !important;
-    width: 99%;
 }
 
 div.menubar .ui-widget-header
@@ -153,14 +148,16 @@ div.menubar .ui-widget-header
 }
 
 .menubar-title {
-    float: left;
-    width: 99.6%;
     font-size: 11px;
     text-align: left;
-    border-color: #efefef;
-    background-color:#EFFBDB;
-    padding:0 0.2%;
+    background-color:#333;
+    color:#fff;
+    padding-left: 1em;
     min-height:14px;
+}
+
+.menubar-title strong a {
+    color: #fff
 }
 
 .menubar-title img {
@@ -366,7 +363,6 @@ textarea {
 }
 
 .settingentryhighlight {
-    color: #94D200;
     font-weight: bold;
 }
 
@@ -1422,15 +1418,15 @@ div.right {
     text-decoration:none !important;
     cursor:pointer;
     text-align: center;
-    zoom: 1;
-    border: 1px solid #CDF078;
-    background: #EFFBDB url(images/ui-bg_glass_100_effbdb_1x400.png) 50% 50%
+    border: 1px solid #333;
     repeat-x;
 }
 
 .limebutton.ui-state-hover
 {
-    border: 1px solid #94D200;
+    border: 1px solid #fff;
+    background-color: #333;
+    color: #fff;
 }
 
 

@@ -79,6 +79,26 @@ class Tokens_dynamic extends LSActiveRecord
             return $aData;
         }
 
+        /**
+         * Returns complete timestamps for requested sids and token
+         *
+         * @param $sids the survey IDs to query
+         * @param $token the token to query
+         */
+        public function completes($sids, $token)
+        {
+            $aReturn = array();
+            foreach($sids as $sid) 
+            {
+                $completed=Yii::app()->db->createCommand()
+                    ->select("DATE_FORMAT(completed, '%Y-%m-%dT%TZ')")
+                    ->from("{{tokens_$sid}}")
+                    ->where("token = :token", array(":token" => $token))
+                    ->queryScalar();
+                $aReturn[$sid] = array("Completed" => $completed);
+            }
+            return $aReturn;
+        }
 
         /**
          * Returns summary information of this token table

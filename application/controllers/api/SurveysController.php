@@ -180,6 +180,21 @@ class SurveysController extends BaseAPIController
             $aData = Tokens_dynamic::summaries($sids);
             $this->renderJSON($aData);
         }
+
+        /**
+         * @param   Array   $sids   The array of surveys for which completion statuses
+         *                          are being requested.
+         * @param   String  $token  The token record to be queried.
+         * @returns JSON            The completion statuses for the requested surveys.
+         */
+        public function actionCompletes()
+        {
+            $sids = $this->params("sids");
+            $token = $this->params("token");
+            $aData = Tokens_dynamic::completes($sids, $token);
+
+            $this->renderJSON($aData);
+        }
 	
         private function params($paramName, $required = true) 
         {

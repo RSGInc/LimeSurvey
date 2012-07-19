@@ -1024,7 +1024,9 @@
         $sitename = Yii::app()->getConfig("sitename");
 
         // Shift the date due to global timeadjust setting
-        $today = dateShift(date("Y-m-d H:i:s"), "Y-m-d H:i", $timeadjust);
+        #$today = dateShift(date("Y-m-d H:i:s"), "Y-m-d H:i", $timeadjust);
+
+        $today = gmdate('Y-m-d H:i:s');
 
         // check how many uses the token has left
         $usesquery = "SELECT usesleft FROM {{tokens_$surveyid}} WHERE token='".$clienttoken."'";
@@ -1133,6 +1135,25 @@
                 }
             }
         }
+    }
+
+    /**
+     * Sends a notification to any registered application
+     * NOTE: requires php_curl extension to be enabled
+     */
+    function sendTokenSubmitNotifications($surveyid, $token)
+    {
+        $url = Yii::app()->getConfig('submit_notification_url');
+        $survey = Survey::model()->findByPk($surveyid);
+        $json = CJSON::encode(array( "sid" => $surveyid, "token" => $token));
+        $debug = Yii::app()->getConfig('debug');
+
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+        #curl_setopt($curl, CURLOPT_VERBOSE, $debug > 0 ? 1 : 0);
+        curl_exec($curl);
     }
 
     /**

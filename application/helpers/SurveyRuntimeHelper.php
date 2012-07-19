@@ -415,12 +415,10 @@ class SurveyRuntimeHelper {
                     if (isset($clienttoken) && $clienttoken)
                     {
                         submittokens();
+                        
+                        //Send token-specific notifications
+                        sendTokenSubmitNotifications($surveyid, $clienttoken);
                     }
-
-                    //Send notifications
-
-                    sendSubmitNotifications($surveyid);
-
 
                     $content = '';
 

@@ -13,10 +13,10 @@ class SurveysController extends BaseAPIController
     public function actionCopy()
     {
         $sid = $this->params('sid');
-        if ($this->params('copysurveytranslinksfields', false) == "on" || $this->params('translinksfields', false) == "on")
-        {
-            $sTransLinks = true;
-        }
+        //if ($this->params('copysurveytranslinksfields', false) == "on" || $this->params('translinksfields', false) == "on")
+        //{
+        //    $sTransLinks = true;
+        //}
         $sid = sanitize_int($this->params('sid'));
         $exclude = array();
         $sNewSurveyName = $this->params('copysurveyname');
@@ -38,7 +38,7 @@ class SurveysController extends BaseAPIController
         {
             $importerror = true;
         }
-        $this->renderJSON(array('surveyid'=>$aImportResults['newsid']));
+        $this->renderJSON(array('sid'=>$aImportResults['newsid']));
     }
     
 	public function actionCreate()
@@ -55,6 +55,8 @@ class SurveysController extends BaseAPIController
             'alloweditaftercompletion' => 'Y',
             'usetokens' => 'Y',
             'language' => 'en',
+            'anonymized' => 'N',
+            
             'format' => 'G'
         );
 		$xssfilter = false;

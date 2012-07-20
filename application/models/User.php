@@ -205,7 +205,7 @@ class User extends CActiveRecord
     {
         return $this->getDbConnection()->createCommand()
             ->select('uid')
-            ->from('users')
+            ->from('{{users}}')
             ->where('full_name=:full_name', array('full_name'=>$fullname))
             ->queryScalar();
     }

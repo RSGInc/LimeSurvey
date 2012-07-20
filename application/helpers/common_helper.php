@@ -2173,7 +2173,7 @@ function createFieldMap($surveyid, $style='short', $force_refresh=false, $questi
     global $aDuplicateQIDs;
     $sLanguage = sanitize_languagecode($sLanguage);
     $surveyid = sanitize_int($surveyid);
-    $clang = new Limesurvey_lang($sLanguage); ;
+    $clang = new Limesurvey_lang($sLanguage);
 
     //checks to see if fieldmap has already been built for this page.
     if (isset(Yii::app()->session['fieldmap-' . $surveyid . $sLanguage]) && !$force_refresh && $questionid == false) {

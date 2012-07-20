@@ -369,7 +369,7 @@ function activateSurvey($surveyid, $simulate = false)
             case "token":
                 if ($prow['anonymized'] == "N")
                 {
-                    $createsurvey[$arow['fieldname']] = "VARCHAR(36)";
+                    $createsurvey[$arow['fieldname']] = "VARCHAR(37)";
                 }
                 break;
             case '*': // Equation

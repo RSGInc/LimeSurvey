@@ -134,38 +134,33 @@ class SurveysController extends BaseAPIController
         $resultsService->exportSurvey($iSurveyID, $explang, $options);
 	}
 	
-	public function actionActivate()
-	{
+	public function actionActivate(){
+	    
             $sid = $this->params('sid');
             Yii::app()->setLang(new Limesurvey_lang('en'));
             $surveyInfo = getSurveyInfo($sid);		
-            if (!isset($surveyInfo['active']) || $surveyInfo['active'] == 'Y')
-            {
-        	$this->handleError(500, "Survey activity not set or already active.");
+            if (!isset($surveyInfo['active']) || $surveyInfo['active'] == 'Y'){
+        	   $this->handleError(500, "Survey activity not set or already active.");
             }
-		
             Yii::app()->loadHelper("admin/activate");
-                    
             $survey = Survey::model()->findByAttributes(array('sid' => $sid));
-            
             if (!is_null($survey))
             {
-                $survey->anonymized = false;
-                $survey->datestamp = true;
-                $survey->ipaddr = true;
-                $survey->refurl = true;
-                $survey->savetimings = true;
+                $survey->anonymized = 'N';
+                $survey->datestamp = 'Y';
+                $survey->ipaddr = 'Y';
+                $survey->refurl = 'Y';
+                $survey->savetimings = 'Y';
                 $survey->save();
             } else {
                 $this->handleError(500, "Survey not found");
             }
             activateSurvey($sid);		
-
             # we need the token table in order for the dynamic token creation hack to work...
             Yii::app()->loadHelper("admin/token");
             createTokenTable($sid);
-
             $this->renderJSON(array('url' => $this->createAbsoluteUrl("/survey/index/sid/$sid")));
+        
 	}
 
     # CH 2012-6-12 removed actionDeactivate, as we determined that this would make our client code

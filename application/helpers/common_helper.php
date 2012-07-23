@@ -2219,8 +2219,9 @@ function createFieldMap($surveyid, $style='short', $force_refresh=false, $questi
         $aDefaultValues[] = $v->qid;
 
     //Check for any additional fields for this survey and create necessary fields (token and datestamp and ipaddr)
+    
     $prow = Survey::model()->findByPk($surveyid)->getAttributes(); //Checked
-
+    
     if ($prow['anonymized'] == "N")
     {
         $fieldmap["token"]=array("fieldname"=>"token", 'sid'=>$surveyid, 'type'=>"token", "gid"=>"", "qid"=>"", "aid"=>"");

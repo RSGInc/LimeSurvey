@@ -288,6 +288,7 @@ function activateSurvey($surveyid, $simulate = false)
 	//Yii::app()->loadHelper("common");
     $fieldmap = createFieldMap($surveyid,'full',true,false,getBaseLanguageFromSurveyID($surveyid));
     $createsurvey = array();
+   
     foreach ($fieldmap as $j=>$arow) //With each question, create the appropriate field(s)
     {
         switch($arow['type'])
@@ -367,6 +368,7 @@ function activateSurvey($surveyid, $simulate = false)
                     $createsurvey[$arow['fieldname']] = "text";
                 break;
             case "token":
+                
                 if ($prow['anonymized'] == "N")
                 {
                     $createsurvey[$arow['fieldname']] = "VARCHAR(37)";
@@ -392,7 +394,7 @@ function activateSurvey($surveyid, $simulate = false)
         }
 
     }
-
+    
     if ($simulate){
         return array('dbengine'=>$CI->db->databasetabletype, 'dbtype'=>Yii::app()->db->driverName, 'fields'=>$arrSim);
     }

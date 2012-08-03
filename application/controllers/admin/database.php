@@ -57,7 +57,12 @@ class database extends Survey_Common_Action
         else
             $xssfilter = false;
 
-        if ($action == "updatedefaultvalues" && hasSurveyPermission($surveyid, 'surveycontent','update'))
+        $qrow = Questions::model()->findByAttributes(array('qid'=>$qid));
+        $aAttributesWithValues = Questions::model()->getAdvancedSettingsWithValues($qid, $qrow['type'], $surveyid);
+        $is_editable = $aAttributesWithValues['editable'] == 1 ? true : false;
+        $is_superadmin = Yii::app()->session['USER_RIGHT_SUPERADMIN'] == 1;
+
+        if ($action == "updatedefaultvalues" && ($is_editable || $is_superadmin) && hasSurveyPermission($surveyid, 'surveycontent','update'))
         {
 
             $questlangs = Survey::model()->findByPk($surveyid)->additionalLanguages;
@@ -136,7 +141,7 @@ class database extends Survey_Common_Action
         }
 
 
-        if ($action == "updateansweroptions" && hasSurveyPermission($surveyid, 'surveycontent','update'))
+        if ($action == "updateansweroptions" && ($is_editable || $is_superadmin) && hasSurveyPermission($surveyid, 'surveycontent','update'))
         {
             Yii::app()->loadHelper('database');
             $anslangs = Survey::model()->findByPk($surveyid)->additionalLanguages;
@@ -234,7 +239,7 @@ class database extends Survey_Common_Action
         }
 
 
-        if ($action == "updatesubquestions" && hasSurveyPermission($surveyid, 'surveycontent','update'))
+        if ($action == "updatesubquestions"&& ($is_editable || $is_superadmin)  && hasSurveyPermission($surveyid, 'surveycontent','update'))
         {
 
             Yii::app()->loadHelper('database');
@@ -564,7 +569,7 @@ class database extends Survey_Common_Action
             }
         }
 
-        if ($action == "updatequestion" && hasSurveyPermission($surveyid, 'surveycontent','update'))
+        if ($action == "updatequestion" && ($is_editable || $is_superadmin) && hasSurveyPermission($surveyid, 'surveycontent','update'))
         {
             LimeExpressionManager::RevertUpgradeConditionsToRelevance($surveyid);
 
@@ -594,6 +599,9 @@ class database extends Survey_Common_Action
 
             foreach ($validAttributes as $validAttribute)
             {
+                if ($validAttribute['name'] == 'editable' && !$is_superadmin) {
+                    next;
+                }
                 if ($validAttribute['i18n'])
                 {
                     foreach ($aLanguages as $sLanguage)

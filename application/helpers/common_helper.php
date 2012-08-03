@@ -4099,6 +4099,20 @@ function questionAttributes($returnByName=false)
     "help"=>$clang->gT("Allowed file types in comma separated format. e.g. pdf,doc,odt"),
     "caption"=>$clang->gT("Allowed file types"));
 
+    $qattributes["editable"]=array(
+    "types"=>"15ABCDEFGHIKLMNOPQRSTUWXYZ!:;|",
+    'category'=>$clang->gT('Other'),
+    'sortorder'=>100,
+    "inputtype"=>"singleselect",
+    'options'=>array(
+        0=>$clang->gT('No'),
+        1=>$clang->gT('Yes')
+    ),
+    'default'=>1,
+    "help"=>$clang->gT("Allow edits to this question."),
+    "caption"=>$clang->gT("Edits Allowed"));
+
+
     $qattributes["random_group"]=array(
     "types"=>"15ABCDEFGHIKLMNOPQRSTUWXYZ!:;|",
     'category'=>$clang->gT('Logic'),

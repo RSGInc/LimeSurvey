@@ -192,6 +192,28 @@ class SurveysController extends BaseAPIController
 
             $this->renderJSON($aData);
         }
+
+        /**
+         * @param   Array   $sids       The array of surveys for which the question list is
+         *                              being requested.
+         * @param   Boolean $readonly   If true, retrieve only the readonly (editable == 0) 
+         *                              questions
+         * @returns JSON            An array of questions
+         */
+        public function actionQuestions() 
+        {
+            $sids = $this->params("sids");
+            $readonly = $this->params("readonly", false);
+            $criteria = new CDbCriteria();
+            $criteria->addInCondition("sid", $sids);
+
+            // reduce to only readonly questions, if indicated
+            if($readonly) {
+                $criteria->addCondition("qid IN (select qid from question_attributes where qid=t.qid and attribute='editable' and value=0)");
+            }
+            $questions = Questions::model()->findAll($criteria);
+            $this->renderJSON($questions);
+        }
 	
         private function params($paramName, $required = true) 
         {

@@ -59,7 +59,7 @@ class database extends Survey_Common_Action
 
         $qrow = Questions::model()->findByAttributes(array('qid'=>$qid));
         $aAttributesWithValues = Questions::model()->getAdvancedSettingsWithValues($qid, $qrow['type'], $surveyid);
-        $is_editable = $aAttributesWithValues['editable'] == 1 ? true : false;
+        $is_editable = $aAttributesWithValues['editable'] == 1;
         $is_superadmin = Yii::app()->session['USER_RIGHT_SUPERADMIN'] == 1;
 
         if ($action == "updatedefaultvalues" && ($is_editable || $is_superadmin) && hasSurveyPermission($surveyid, 'surveycontent','update'))

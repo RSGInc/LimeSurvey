@@ -16,11 +16,18 @@
     var lasaveurl = '<?php echo Yii::app()->createUrl('/admin/labels/ajaxSets'); ?>';
     var lsdetailurl = '<?php echo Yii::app()->createUrl('/admin/question/ajaxlabelsetdetails'); ?>';
     var lspickurl = '<?php echo Yii::app()->createUrl('/admin/question/ajaxlabelsetpicker'); ?>';
+    var lslockurl = '<?php echo Yii::app()->createUrl('/admin/question/ajaxlockquestion'); ?>';
+    var lsunlockurl = '<?php echo Yii::app()->createUrl('/admin/question/ajaxunlockquestion'); ?>';
     var check = true;
     var lasuccess = '<?php $clang->eT('The records have been saved successfully!'); ?>';
     var lafail = '<?php $clang->eT('Sorry, the request failed!'); ?>';
     var ok = '<?php $clang->eT('Ok'); ?>';
     var cancel = '<?php $clang->eT('Cancel'); ?>';
+    var lsUnlockImgSrc = '<?php $lsUnlockImgSrc = $sImageURL.'unlock.png'; echo $lsUnlockImgSrc; ?>';
+    var lsLockImgSrc = '<?php $lsLockImgSrc = $sImageURL.'security_16.png'; echo $lsLockImgSrc; ?>';
+    var imageURL = '<?php echo $sImageURL; ?>';
+    var strLockedSubQuestion = '<?php $clang->eT('Sub-question has been locked'); ?>';
+    var strUnlockedSubQuestion = '<?php $clang->eT('Sub-question has been unlocked'); ?>';
 </script>
 <?php echo PrepareEditorScript(); ?>
 <div class='header ui-widget-header'>
@@ -90,16 +97,16 @@
                                     if ($first) {$codeids=$codeids.' '.$row->question_order;}
                                 ?>
                                 <tr id='row_<?php echo $row->language; ?>_<?php echo $row->qid; ?>_<?php echo $row->scale_id; ?>'
-                                    <?php if ($alternate==true)
-                                        { ?>
+                                    <?php if ($alternate) { ?>
                                         class="highlight"
-                                        <?php $alternate=false;
-                                        }
-                                        else
-                                        {
-                                            $alternate=true;
-                                        }
-                                    ?>
+                                    <?php } $alternate = !$alternate; ?>
+
+                                    data-locked='<?php 
+                                        $locked = 
+                                            array_key_exists('editable', $subQuestionAttributes[$row->qid]) 
+                                            && $subQuestionAttributes[$row->qid]['editable'] == 0; 
+                                        echo $locked; //returns 1 if true... ?>'
+                                    data-qid='<?php echo $row->qid ?>'
                                     ><td>
 
                                         <?php if ($activated == 'Y' ) // if activated
@@ -130,7 +137,15 @@
                                             { ?>
                                             <img src='<?php echo $sImageURL; ?>addanswer.png' class='btnaddanswer' alt='<?php $clang->eT("Insert a new subquestion after this one") ?>' />
                                             <img src='<?php echo $sImageURL; ?>deleteanswer.png' class='btndelanswer' alt='<?php $clang->eT("Delete this subquestion") ?>' />
-                                            <?php } ?>
+
+
+                                            <!-- lock / unlock -->
+                                            <img 
+                                                src='<?php echo $locked ? $lsLockImgSrc : $lsUnlockImgSrc; ?>' 
+                                                class='btnToggleLock' 
+                                                alt='<?php $clang->eT("Lock/Unlock subquestion from further edits"); ?>'
+                                            />
+                                        <?php } ?>
 
                                     </td></tr>
                                 <?php $position++;

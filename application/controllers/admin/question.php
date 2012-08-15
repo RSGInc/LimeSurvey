@@ -603,11 +603,34 @@ class question extends Survey_Common_Action
             for ($scale_id = 0; $scale_id < $scalecount; $scale_id++)
             {
                 $criteria = new CDbCriteria;
-                $criteria->condition = 'parent_qid = :pqid AND language = :language AND scale_id = :scale_id';
+                $criteria->condition = 'parent_qid = :pqid 
+                    AND language = :language 
+                    AND scale_id = :scale_id';
                 $criteria->order = 'question_order, title ASC';
-                $criteria->params = array(':pqid' => $qid, ':language' => $anslang, ':scale_id' => $scale_id);
+                $criteria->params = array(
+                    ':pqid' => $qid, 
+                    ':language' => $anslang, 
+                    ':scale_id' => $scale_id
+                );
                 $aData['results'][$anslang][$scale_id] = Questions::model()->findAll($criteria);
             }
+        }
+
+        $subquestions = Questions::model()->findAllByAttributes(array(
+            'parent_qid' => $qid
+        ));
+
+        $aData['subQuestionAttributes'] = array();
+        foreach($subquestions as $subquestion) {
+            $attributes = Question_attributes::model()->findAllByAttributes(array(
+                "qid" => $subquestion->qid
+            ));
+            $attributes_hash = array();
+            foreach($attributes as $attr) {
+                $attributes_hash[$attr->attribute] = $attr->value;
+            }
+
+            $aData['subQuestionAttributes'][$subquestion->qid] = $attributes_hash;
         }
 
         $aViewUrls['subQuestion_view'][] = $aData;
@@ -1001,6 +1024,47 @@ class question extends Survey_Common_Action
         }
         $resultdata=getlabelsets($language);
         echo ls_json_encode($resultdata);
+    }
+
+    /**
+     * Lock question 
+     * @param int $qid VIA POST
+     */
+    public function ajaxlockquestion() 
+    {
+        $qid = (int)$_POST['qid'];
+        $editableAttr = Question_attributes::model()->findByAttributes(array(
+            'attribute'=>'editable',
+            'qid'=>$qid
+        ));
+        if($editableAttr)
+        {
+            $editableAttr->value = 0;
+            $editableAttr->save();
+        } 
+        else 
+        {
+            $attribute = new Question_attributes;
+            $attribute->qid = $qid;
+            $attribute->value = 0;
+            $attribute->attribute = 'editable';
+            $attribute->save();
+        }
+    }
+
+    /**
+     * Unlock question 
+     * @param int $qid VIA POST
+     */
+    public function ajaxunlockquestion() 
+    {
+        $qid = (int)$_POST['qid'];
+        $atts = Question_attributes::model()->findAllByAttributes(array(
+            'attribute'=>'editable',
+            'qid'=>$qid
+        ));
+        $atts[0]->value = 1;
+        $atts[0]->save();
     }
 
     /**

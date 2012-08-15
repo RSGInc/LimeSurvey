@@ -18,6 +18,7 @@ $(document).ready(function(){
         distance:3});
     $('.btnaddanswer').click(addinput);
     $('.btndelanswer').click(deleteinput);
+    $('.btnToggleLock').click(toggleLock);
     $('#editsubquestionsform').submit(code_duplicates_check)
     $('#labelsetbrowser').dialog({ autoOpen: false,
         modal: true,
@@ -57,6 +58,38 @@ $(document).ready(function(){
 
     updaterowproperties();
 });
+
+function toggleLock() {
+    var img=$(this);
+    var sid=$('input[name=sid]').val();
+    var tr = $(this).closest('tr');
+    var sqid = tr.data('qid');
+    var locked = tr.data('locked') == 1;
+    $.ajax({
+        url: locked ? lsunlockurl : lslockurl,
+        dataType: 'json',
+        type: 'POST',
+        data: {
+            qid: sqid,
+            sid: sid
+        },
+        success: function(){
+            locked = !locked; //reflect status change
+
+            if(locked) {
+                $.blockUI({message:"<p><br/>"+strLockedSubQuestion+"</p>"});
+                tr.data('locked', 1);
+                img.attr('src', lsLockImgSrc);
+            } else {
+                $.blockUI({message:"<p><br/>"+strUnlockedSubQuestion+"</p>"});
+                tr.data('locked', "");
+                img.attr('src', lsUnlockImgSrc);
+            }
+            setTimeout(jQuery.unblockUI,1000);
+        }
+    });
+    img.attr('src', imageURL + "ajax-spinner.gif");
+}
 
 function deleteinput()
 {

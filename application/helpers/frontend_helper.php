@@ -1143,17 +1143,22 @@
      */
     function sendTokenSubmitNotifications($surveyid, $token)
     {
-        $url = Yii::app()->getConfig('submit_notification_url');
+        $urlstring = Yii::app()->getConfig('submit_notification_url');
+        $urls = explode(',', $urlstring);
+        
         $survey = Survey::model()->findByPk($surveyid);
         $json = CJSON::encode(array( "sid" => $surveyid, "token" => $token));
         $debug = Yii::app()->getConfig('debug');
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
-        #curl_setopt($curl, CURLOPT_VERBOSE, $debug > 0 ? 1 : 0);
-        curl_exec($curl);
+        foreach($urls as $url){
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-Type: application/json"));
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $json);
+            #curl_setopt($curl, CURLOPT_VERBOSE, $debug > 0 ? 1 : 0);
+            curl_exec($curl);
+            curl_close($curl);
+        }
     }
 
     /**

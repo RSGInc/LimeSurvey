@@ -12,16 +12,21 @@ class FilterController extends BaseAPIController
     {
     	header('Content-type: application/json');
     	$sids = $this->getSurveyIDs();
-    	echo json_encode(Filter_questions::model()->getQuestions($sids));
-		exit();
+        
+        
+        header('Content-type: application/json');
+        echo CJSON::encode(array('questions'=>Filter_questions::model()->getQuestions($sids)));
+        Yii::app()->end();
     }
 
     public function actionAnswers()
     {
-    	//header('Content-type: application/json');
     	$sids = $this->getSurveyIDs();
-    	echo json_encode(Filter_answers::model()->getAnswers($sids));
-    	exit();
+    	
+        header('Content-type: application/json');
+        echo CJSON::encode(array('answers'=>Filter_answers::model()->getAnswers($sids)));
+        Yii::app()->end();
+        
     }
 
     public function actionResponses()
@@ -51,7 +56,11 @@ class FilterController extends BaseAPIController
     		array_push($filtersBySurvey[$sid], $filter);
     	}
     	$filter = new Filter_responses();
-    	echo json_encode($filter->getResponses($filtersBySurvey));
+        
+        
+        header('Content-type: application/json');
+        echo CJSON::encode(array('responses'=>$filter->getResponses($filtersBySurvey)));
+        Yii::app()->end();
     }
         
     private function getSurveyIDs() 

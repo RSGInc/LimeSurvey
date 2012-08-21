@@ -214,6 +214,15 @@ class SurveysController extends BaseAPIController
             $questions = Questions::model()->findAll($criteria);
             $this->renderJSON($questions);
         }
+
+	public function actionImport()
+	{
+		$post = file_get_contents("php://input");
+		$params = CJSON::decode($post, true);
+		$sid = $params["sid"];
+		$responses = $params["responses"];
+		$this->renderJSON($responses);
+	}
 	
         private function params($paramName, $required = true) 
         {

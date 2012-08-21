@@ -4,12 +4,25 @@ class BaseAPIController extends LSYii_Controller
     
     protected function _init()
     {
-        
-        if(empty($_REQUEST['username']) || !isset($_REQUEST['password'])){
-            $this->handleError(400, "No credentials provided.");
-        }
-        
-        $identity = new UserIdentity(sanitize_user($_REQUEST['username']), $_REQUEST['password']);
+	$username = null;
+	$password = null;
+        if(empty($_REQUEST['username']) || empty($_REQUEST['password'])){
+            $post = file_get_contents("php://input");
+	    $params = CJSON::decode($post, true);
+            if(!isset($params) || !$params['username'] || !$params['password']) {
+                $this->handleError(400, "No credentials provided.");
+	    } else {
+		$username = $params['username'];
+		$password = $params['password'];
+	    }
+        } else {
+	    $username = $_REQUEST['username'];
+	    $password = $_REQUEST['password'];
+	}
+
+        $username = sanitize_user($username);
+
+        $identity = new UserIdentity($username, $password);
 
         if (!$identity->authenticate()){
             $this->handleError(400, "Credentials are wrong.");
